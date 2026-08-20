@@ -1,0 +1,3 @@
+entry_date,symbol,conviction,pattern,entry_price,stop_price,current_price,peak_price,shares,investment,risk_pct,pnl_pct,status,days_held
+20260820,MMTC,CONFIRMED,Fib Golden Pocket,66.2699966430664,63.85,66.2699966430664,67.58000183105469,4132,273827.63,3.65,0.0,OPEN,1
+20260820,NAM-INDIA,CONFIRMED,Pocket Pivot,1232.5,1172.17,1232.5,1266.199951171875,127,156527.5,6.36,0.0,OPEN,1
