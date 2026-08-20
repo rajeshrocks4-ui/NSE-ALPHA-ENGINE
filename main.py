@@ -54,12 +54,13 @@ def run_pipeline():
     bhav_lookup = {}
     if not bhav_df.empty:
         bhav_df.columns = [c.strip().upper() for c in bhav_df.columns]
-        sym_col = 'SYMBOL' if 'SYMBOL' in bhav_df.columns else ('TckrSymb' if 'TckrSymb' in bhav_df.columns else '')
+        sym_col = 'TCKRSYMB' if 'TCKRSYMB' in bhav_df.columns else ('SYMBOL' if 'SYMBOL' in bhav_df.columns else '')
         if sym_col:
-            bhav_lookup = bhav_df.set_index(sym_col).to_dict(orient='index')
+            clean_bhav = bhav_df.drop_duplicates(subset=[sym_col])
+            bhav_lookup = clean_bhav.set_index(sym_col).to_dict(orient='index')
         print(f"  [+] Loaded Bhavcopy: {len(bhav_df)} entries with delivery metrics.")
         
-    tickers = load_universe()
+    tickers = load_universe(bhav_df=bhav_df)
     price_matrices = fetch_price_matrices(tickers, period="1y")
     
     if not price_matrices:
