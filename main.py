@@ -182,16 +182,16 @@ def run_pipeline():
     print(f"\n[+] Master Alpha Report saved to: {report_file}")
     print(f"[+] Performance Scorecard updated in: performance/scorecard.md")
     
-    print("\n" + "=" * 80)
-    print("  💎 TODAY'S ELITE 5 FOCUS PICKS:")
-    print("=" * 80)
-    if not elite_five.empty:
-        for idx, r in elite_five.iterrows():
-            shares, inv, risk_p = calculate_position_size(r['close'], r['stop_loss'], regime_mult)
-            print(f"  {idx+1}. {r['symbol']:<12} | Sector: {r['sector']:<18} | Pattern: {r['pattern']:<18} | Score: {r['alpha_score']:<4.1f} | Entry: ₹{r['close']:<7.1f} | Stop: ₹{r['stop_loss']:<7.1f}")
-    else:
-        print("  No picks passed 100% strict convergence today.")
-    print("=" * 80 + "\n")
+    # -------------------------------------------------------------
+    # Step 7: Push Notifications (Telegram / Discord)
+    # -------------------------------------------------------------
+    from engine.notifier import format_elite_five_alert, send_telegram_alert, send_discord_alert
+    alert_msg = format_elite_five_alert(elite_five, regime, regime_metrics, today_display)
+    
+    if send_telegram_alert(alert_msg):
+        print("  [+] Dispatched Telegram notification successfully.")
+    if send_discord_alert(alert_msg):
+        print("  [+] Dispatched Discord notification successfully.")
 
 if __name__ == "__main__":
     run_pipeline()
