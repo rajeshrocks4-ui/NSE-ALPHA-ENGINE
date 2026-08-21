@@ -7,8 +7,7 @@
 
 | Symbol | Sector | Pattern | Price | Stop Loss | Alpha Score | Est. Shares | Capital Req | R/R |
 |--------|--------|---------|-------|-----------|-------------|-------------|-------------|-----|
-| **CARTRADE** | General | `Pocket Pivot` | ₹3072.9 | ₹2855.1 | 🟢 **77.0** | 11 | ₹33,802 | 1:4+ |
-| **ACMESOLAR** | General | `Pocket Pivot` | ₹401.6 | ₹369.5 | 🟢 **72.0** | 77 | ₹30,923 | 1:4+ |
+| **CARTRADE** | General | `Pocket Pivot` | ₹3072.9 | ₹2855.1 | 🟢 **73.0** | 11 | ₹33,802 | 1:4+ |
 
 ---
 ## 📊 Market Regime Dashboard: DISTRIBUTION (3/13)
@@ -16,31 +15,31 @@
 
 | Indicator | Value | Status |
 |-----------|-------|--------|
-| % Above 50 SMA | 45.9% | 🟡 Neutral |
-| % Above 150 SMA | 33.0% | 🔴 Bearish |
-| % Above 200 SMA | 24.9% | 🔴 Bearish |
-| 52W High / Low Ratio | 1.97 | 🟡 Neutral |
+| % Above 50 SMA | 46.6% | 🟡 Neutral |
+| % Above 150 SMA | 34.1% | 🔴 Bearish |
+| % Above 200 SMA | 25.2% | 🔴 Bearish |
+| 52W High / Low Ratio | 1.94 | 🟡 Neutral |
 
 ---
 ## 🔥 Top Conviction Setups (APEX & STRONG Tiers)
 
 | Rank | Symbol | Sector | Pattern | Price | Stop Loss | Deliv % | Clean RS | Alpha Score |
 |------|--------|--------|---------|-------|-----------|---------|----------|-------------|
-| 1 | **CARTRADE** | General | `Pocket Pivot` | ₹3072.9 | ₹2855.1 | 40.0% | 23.0 | **77.0** |
-| 2 | **ACMESOLAR** | General | `Pocket Pivot` | ₹401.6 | ₹369.5 | 40.0% | 18.3 | **72.0** |
-| 3 | **JINDALSAW** | General | `Pocket Pivot` | ₹291.6 | ₹268.9 | 40.0% | 15.8 | **72.0** |
-| 4 | **JBMA** | General | `Fib Golden Pocket` | ₹674.0 | ₹640.7 | 40.0% | 5.5 | **72.0** |
-| 5 | **DATAPATTNS** | General | `Pocket Pivot` | ₹4829.9 | ₹4411.1 | 40.0% | 13.4 | **72.0** |
-| 6 | **IIFL** | General | `Pocket Pivot` | ₹679.8 | ₹635.9 | 40.0% | 15.2 | **72.0** |
-| 7 | **TBZ** | General | `Pocket Pivot` | ₹279.5 | ₹239.6 | 40.0% | 15.8 | **72.0** |
-| 8 | **CONFIPET** | General | `Fib Golden Pocket` | ₹74.8 | ₹65.6 | 40.0% | 15.0 | **70.0** |
-| 9 | **JTLIND** | General | `Fib Golden Pocket` | ₹79.5 | ₹69.7 | 40.0% | 5.2 | **68.0** |
-| 10 | **AEROFLEX** | General | `Pocket Pivot` | ₹503.0 | ₹446.6 | 40.0% | 18.3 | **68.0** |
-| 11 | **AMANTA** | General | `Pocket Pivot` | ₹195.8 | ₹178.7 | 40.0% | 20.3 | **67.0** |
-| 12 | **DHAMPURSUG** | General | `Pocket Pivot` | ₹185.2 | ₹161.5 | 40.0% | 9.3 | **67.0** |
-| 13 | **KSL** | General | `Fib Golden Pocket` | ₹881.2 | ₹815.6 | 40.0% | 3.0 | **67.0** |
-| 14 | **AVADHSUGAR** | General | `Pocket Pivot` | ₹834.8 | ₹709.7 | 40.0% | 21.1 | **67.0** |
-| 15 | **FCL** | General | `Pocket Pivot` | ₹47.4 | ₹41.1 | 40.0% | 11.7 | **67.0** |
+| 1 | **CARTRADE** | General | `Pocket Pivot` | ₹3072.9 | ₹2855.1 | 40.0% | 23.0 | **73.0** |
+| 2 | **JINDALSAW** | General | `Pocket Pivot` | ₹291.6 | ₹268.9 | 40.0% | 15.8 | **68.0** |
+| 3 | **JBMA** | General | `Fib Golden Pocket` | ₹674.0 | ₹640.7 | 40.0% | 5.5 | **68.0** |
+| 4 | **ACMESOLAR** | General | `Pocket Pivot` | ₹401.6 | ₹369.5 | 40.0% | 18.3 | **68.0** |
+| 5 | **DATAPATTNS** | General | `Pocket Pivot` | ₹4829.9 | ₹4411.1 | 40.0% | 13.4 | **68.0** |
+| 6 | **IIFL** | General | `Pocket Pivot` | ₹679.8 | ₹635.9 | 40.0% | 15.2 | **68.0** |
+| 7 | **CONFIPET** | General | `Fib Golden Pocket` | ₹74.8 | ₹65.6 | 40.0% | 15.0 | **66.0** |
+| 8 | **STYLAMIND** | General | `Fib Golden Pocket` | ₹3601.7 | ₹3118.9 | 40.0% | 12.6 | **66.0** |
+| 9 | **AEROFLEX** | General | `Pocket Pivot` | ₹503.0 | ₹446.6 | 40.0% | 18.3 | **64.0** |
+| 10 | **JTLIND** | General | `Fib Golden Pocket` | ₹79.5 | ₹69.7 | 40.0% | 5.2 | **64.0** |
+| 11 | **QUADFUTURE** | General | `Fib Golden Pocket` | ₹405.4 | ₹332.0 | 40.0% | 6.6 | **64.0** |
+| 12 | **PREMIERENE** | General | `Pocket Pivot` | ₹1053.0 | ₹990.4 | 40.0% | 10.7 | **63.0** |
+| 13 | **ALKYLAMINE** | General | `Pocket Pivot` | ₹2052.7 | ₹1863.0 | 40.0% | 7.7 | **63.0** |
+| 14 | **MANINDS** | General | `Pocket Pivot` | ₹715.4 | ₹632.7 | 40.0% | 11.4 | **63.0** |
+| 15 | **DHAMPURSUG** | General | `Pocket Pivot` | ₹185.2 | ₹161.5 | 40.0% | 9.3 | **63.0** |
 
 ---
 ## 📖 Asymmetric Execution Rules
@@ -48,4 +47,4 @@
 2. **Chandelier ATR Trailing Stop:** Trail stops at `Peak Price - (3 * ATR14)` as stock advances.
 3. **Breakeven Rule:** When position is up **+8.0%**, automatically move stop loss to entry price.
 
-*Report generated: 2026-08-21 15:51 IST | Automated via GitHub Actions*
+*Report generated: 2026-08-21 16:03 IST | Automated via GitHub Actions*
