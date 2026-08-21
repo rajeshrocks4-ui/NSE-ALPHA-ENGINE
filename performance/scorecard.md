@@ -1,15 +1,15 @@
 # 🛡️ Real-Time Performance & P&L Scorecard
-> **Last Updated:** 20260820 | **Chandelier ATR Trailing Stops Active**
+> **Last Updated:** 20260821 | **Chandelier ATR Trailing Stops Active**
 
 ## Overall Portfolio Statistics
-- **Total Signal Journal Entries:** 7
-- **Currently Open Positions:** 7
+- **Total Signal Journal Entries:** 9
+- **Currently Open Positions:** 9
 
 ## Top 5 Active Open Runners
 | Symbol | Pattern | Entry | Current | Peak | Stop Loss | P&L % | Days |
 |--------|---------|-------|---------|------|-----------|-------|------|
-| **MMTC** | Fib Golden Pocket | ₹66.3 | ₹66.3 | ₹67.6 | ₹63.9 | 🟢 **+0.00%** | 2d |
-| **NAM-INDIA** | Pocket Pivot | ₹1232.5 | ₹1232.5 | ₹1266.2 | ₹1172.2 | 🟢 **+0.00%** | 2d |
+| **NAM-INDIA** | Pocket Pivot | ₹1232.5 | ₹1251.0 | ₹1266.2 | ₹1172.2 | 🟢 **+1.50%** | 3d |
+| **GENUSPOWER** | Fib Golden Pocket | ₹334.2 | ₹338.0 | ₹346.0 | ₹313.2 | 🟢 **+1.11%** | 2d |
+| **CARTRADE** | Pocket Pivot | ₹3072.9 | ₹3072.9 | ₹3165.0 | ₹2903.6 | 🟢 **+0.00%** | 1d |
 | **STLTECH** | Fib Golden Pocket | ₹621.4 | ₹621.4 | ₹634.0 | ₹540.9 | 🟢 **+0.00%** | 1d |
-| **MODISONLTD** | Pocket Pivot | ₹406.0 | ₹406.0 | ₹411.0 | ₹362.7 | 🟢 **+0.00%** | 1d |
-| **GENUSPOWER** | Fib Golden Pocket | ₹334.2 | ₹334.2 | ₹340.9 | ₹309.1 | 🟢 **+0.00%** | 1d |
+| **ACMESOLAR** | Pocket Pivot | ₹401.6 | ₹401.6 | ₹411.3 | ₹372.8 | 🟢 **+0.00%** | 1d |
