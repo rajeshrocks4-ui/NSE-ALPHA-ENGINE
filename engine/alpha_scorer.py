@@ -109,8 +109,18 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
     elif final_alpha_score >= TIER_CONFIRMED_THRESHOLD: conviction = "CONFIRMED"
     else: conviction = "WATCHLIST"
     
-    # Pattern tag
-    primary_pattern = "VCP Coiling" if vcp_res['is_vcp'] else ("Fib Golden Pocket" if fib_res['is_fib_setup'] else ("Pocket Pivot" if pp_res['is_pocket_pivot'] else "Base Consolidation"))
+    # Granular Pattern Selection
+    vcp_pat = vcp_res.get('pattern_name', 'None')
+    if vcp_pat in ["High-Tight Flag Breakout", "Stage 2 (52W High) Breakout", "VCP Pivot Breakout"]:
+        primary_pattern = vcp_pat
+    elif fib_res.get('is_fib_setup'):
+        primary_pattern = "Fib Golden Pocket"
+    elif pp_res.get('is_pocket_pivot'):
+        primary_pattern = "Pocket Pivot"
+    elif vcp_pat in ["VCP Coiling Base", "Volume Dry-Up (VDU) Base", "Stage 2 Momentum Thrust"]:
+        primary_pattern = vcp_pat
+    else:
+        primary_pattern = "Base Consolidation"
     
     # Structural Stop Loss & Pivot Price
     atr14 = float(last.get('ATR14', close * 0.03))
