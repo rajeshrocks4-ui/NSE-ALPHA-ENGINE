@@ -18,7 +18,8 @@ SCORECARD_FILE = PERFORMANCE_DIR / "scorecard.md"
 
 def calculate_position_size(entry_price, stop_price, regime_multiplier=1.0):
     """
-    Computes exact shares to buy risking fixed 1.0% account capital adjusted by market regime.
+    Computes exact shares to buy risking fixed 1.0% account capital,
+    with a strict maximum 20% single-position capital allocation cap.
     """
     if entry_price <= stop_price or entry_price <= 0:
         return 0, 0.0, 0.0
@@ -26,7 +27,14 @@ def calculate_position_size(entry_price, stop_price, regime_multiplier=1.0):
     dollar_risk = (ACCOUNT_CAPITAL * RISK_PER_TRADE_PCT) * regime_multiplier
     risk_per_share = entry_price - stop_price
     
-    shares = int(np.floor(dollar_risk / risk_per_share))
+    # Position size from fixed dollar risk
+    shares_from_risk = int(np.floor(dollar_risk / risk_per_share))
+    
+    # Max capital cap: Never allocate more than 20% of total portfolio in one stock
+    max_position_capital = (ACCOUNT_CAPITAL * 0.20) * regime_multiplier
+    max_shares_from_capital = int(np.floor(max_position_capital / entry_price))
+    
+    shares = max(1, min(shares_from_risk, max_shares_from_capital))
     total_investment = round(shares * entry_price, 2)
     risk_pct_on_entry = round((risk_per_share / entry_price) * 100.0, 2)
     

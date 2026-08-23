@@ -58,22 +58,33 @@ def evaluate_fundamentals(symbol, fund_cache):
     Evaluates a single stock against the fundamental quality gate.
     Returns: dict with fund_pts (0 to 15), passes_gate (bool), roe, debt_equity
     """
+    is_rated = symbol.upper() in fund_cache
+    if not is_rated:
+        return {
+            "fund_pts": 4,
+            "passes_gate": False,
+            "roe": 0.0,
+            "debt_equity": 0.0,
+            "fund_score": 50.0,
+            "is_rated": False
+        }
+        
     metrics = fund_cache.get(symbol.upper(), {})
-    roe = metrics.get("roe", 18.0) # Default sensible fallback if unrated
-    debt_eq = metrics.get("debt_equity", 0.3)
-    fund_score = metrics.get("fund_score", 72.0)
+    roe = metrics.get("roe", 0.0)
+    debt_eq = metrics.get("debt_equity", 0.0)
+    fund_score = metrics.get("fund_score", 60.0)
     
     passes_gate = (roe >= MIN_ROE_PCT) and (debt_eq <= MAX_DEBT_TO_EQUITY)
     
     # Fundamental points allocation (0 to 15 pts)
-    pts = 5 # Baseline
+    pts = 3 # Baseline
     if roe >= 20.0: pts += 4
     elif roe >= 15.0: pts += 2
     
-    if debt_eq <= 0.2: pts += 3
+    if debt_eq <= 0.2: pts += 4
     elif debt_eq <= 0.8: pts += 2
     
-    if fund_score >= 80: pts += 3
+    if fund_score >= 80: pts += 4
     elif fund_score >= 70: pts += 2
     
     return {
@@ -81,5 +92,6 @@ def evaluate_fundamentals(symbol, fund_cache):
         "passes_gate": passes_gate,
         "roe": roe,
         "debt_equity": debt_eq,
-        "fund_score": fund_score
+        "fund_score": fund_score,
+        "is_rated": True
     }

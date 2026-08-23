@@ -21,18 +21,26 @@ def detect_fibonacci_golden_pocket(df):
     ema20 = last.get('EMA20', 0)
     sma50 = last.get('SMA50', 0)
     
-    # 1. Identify Swing High and Swing Low
+    # 1. Identify Swing High and Swing Low with Chronological Direction
     lookback = min(60, len(df))
     swing_window = df.iloc[-lookback:]
-    swing_high = swing_window['High'].max()
-    swing_low = swing_window['Low'].min()
     
-    if swing_high <= swing_low or swing_high == 0:
-        return {"is_fib_setup": False, "fib_score": 0, "detail": "Invalid swing"}
+    high_idx = swing_window['High'].idxmax()
+    low_idx = swing_window['Low'].idxmin()
+    
+    # Must be an UPWARD impulse (Swing Low occurred BEFORE Swing High)
+    if low_idx >= high_idx:
+        return {"is_fib_setup": False, "fib_score": 0, "detail": "Downtrend impulse (Low after High)"}
+        
+    swing_high = float(swing_window.loc[high_idx, 'High'])
+    swing_low = float(swing_window.loc[low_idx, 'Low'])
+    
+    if swing_high <= swing_low or swing_low <= 0:
+        return {"is_fib_setup": False, "fib_score": 0, "detail": "Invalid swing prices"}
         
     impulse_move_pct = (swing_high - swing_low) / swing_low
     
-    # Impulse move must be strong (+20% or more)
+    # Impulse move must be strong (+18% or more)
     if impulse_move_pct < 0.18:
         return {"is_fib_setup": False, "fib_score": 0, "detail": f"Weak impulse ({impulse_move_pct*100:.1f}%)"}
         

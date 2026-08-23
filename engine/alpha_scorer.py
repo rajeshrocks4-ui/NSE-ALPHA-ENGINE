@@ -122,13 +122,16 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
     else:
         primary_pattern = "Base Consolidation"
     
-    # Structural Stop Loss & Pivot Price
+    # Structural Stop Loss & Pivot Price (Strict 8% Hard Stop Cap)
     atr14 = float(last.get('ATR14', close * 0.03))
     vcp_pivot = vcp_res.get('pivot_price', 0.0)
     fib_pivot = fib_res.get('fib_50', 0.0)
     pivot_p = vcp_pivot if vcp_pivot > 0 else (fib_pivot if fib_pivot > 0 else round(close * 1.01, 2))
     
-    suggested_stop = fib_res.get('stop_loss', 0.0) if fib_res.get('is_fib_setup') and fib_res.get('stop_loss', 0) > 0 else round(close - (2.5 * atr14), 2)
+    raw_stop = fib_res.get('stop_loss', 0.0) if fib_res.get('is_fib_setup') and fib_res.get('stop_loss', 0) > 0 else round(close - (2.5 * atr14), 2)
+    # Clamp to max 8% initial risk and below close price
+    hard_stop_floor = round(close * 0.92, 2)
+    suggested_stop = round(max(hard_stop_floor, min(close * 0.98, raw_stop)), 2)
     
     return {
         "symbol": symbol,
