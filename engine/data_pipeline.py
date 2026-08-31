@@ -18,7 +18,12 @@ from config.settings import DATA_DIR, CONFIG_DIR, MIN_CLOSE_PRICE
 BHAVCOPY_DIR = DATA_DIR / "bhavcopy"
 BHAVCOPY_DIR.mkdir(parents=True, exist_ok=True)
 
-EXCLUDED_PATTERNS = ['BEES', 'ETF', 'NIFTY', 'GOLD', 'SILVER', 'LIQUID', 'GILT', 'CPSE', 'BHARAT22', 'INDEX', 'IVZ', 'DUMMY']
+EXCLUDED_PATTERNS = [
+    'BEES', 'ETF', 'NIFTY', 'GOLD', 'SILVER', 'LIQUID', 'GILT', 'CPSE', 'BHARAT22',
+    'INDEX', 'IVZ', 'DUMMY', 'MON100', 'MOM100', 'HDFCMF', 'ICICIM', 'UTIMF',
+    'KOTAKM', 'N100', 'TOP100', 'NEXT50', 'MIDCAP', 'SMLCAP', 'MAFANG', 'FMCG',
+    'CONSUMP', 'AUTO', 'BANK', 'INFRA', 'IT', 'PHARMA', 'HEALTH', 'COMMOD'
+]
 
 def get_last_trading_day(dt=None):
     """Return the most recent trading date (excluding weekends)."""
