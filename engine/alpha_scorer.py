@@ -1,7 +1,10 @@
 """
-Alpha Scorer & Elite 5 Selector
-===============================
-Implements the 100-Point Multi-Layer Convergence Scoring Engine and selects The Elite 5.
+Alpha Scorer & Pre-Breakout Elite 5 Selector (v5.0)
+===================================================
+Implements the 100-Point Pre-Breakout Convergence Scoring Engine.
+Penalizes late extended breakouts (> +4% above pivot) by -20 points.
+Rewards tight pre-breakout volatility coils (NR7, Inside Bar, Doji, VDU, Squeeze).
+Integrates F&O segment tagging.
 """
 
 import pandas as pd
@@ -10,10 +13,15 @@ from config.settings import (
     TIER_APEX_THRESHOLD, TIER_STRONG_THRESHOLD, TIER_CONFIRMED_THRESHOLD,
     MAX_SECTOR_CONCENTRATION
 )
+from engine.pattern_compression import detect_compression_pattern
+from engine.pattern_vcp import detect_vcp_pattern
+from engine.pattern_fibonacci import detect_fibonacci_golden_pocket
+from engine.pattern_pocket_pivot import detect_pocket_pivot
+from engine.fno_radar import is_fno_stock
 
-def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_age=1):
+def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_age=1, fno_set=None):
     """
-    Computes the 100-Point Institutional Alpha Score for a single stock.
+    Computes the 100-Point Pre-Breakout Alpha Score for a single stock.
     """
     if df.empty or len(df) < 50:
         return None
@@ -21,59 +29,62 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
     last = df.iloc[-1]
     close = float(last['Close'])
     vol = float(last['Volume'])
-    vol50 = float(last.get('VOL50', 1))
-    
-    # -------------------------------------------------------------
-    # LAYER 1: Technical Structure & Patterns (Max 30 pts)
-    # -------------------------------------------------------------
-    from engine.pattern_vcp import detect_vcp_pattern
-    from engine.pattern_fibonacci import detect_fibonacci_golden_pocket
-    from engine.pattern_pocket_pivot import detect_pocket_pivot
-    
+    vol50 = float(last.get('VOL50', 1.0))
+    atr14 = float(last.get('ATR14', close * 0.03))
     deliv_pct = float(bhav_row.get('DELIV_PER', 40.0)) if bhav_row is not None else 40.0
     
+    # -------------------------------------------------------------
+    # 1. Pattern & Compression Analytics
+    # -------------------------------------------------------------
+    comp_res = detect_compression_pattern(df)
     vcp_res = detect_vcp_pattern(df)
     fib_res = detect_fibonacci_golden_pocket(df)
     pp_res = detect_pocket_pivot(df, deliv_pct)
     
-    tech_pts = 0
-    # Base Trend Template
-    if close > last.get('SMA50', 0): tech_pts += 5
-    if close > last.get('SMA200', 0): tech_pts += 5
-    if last.get('SMA50', 0) > last.get('SMA200', 0): tech_pts += 5
-    
-    # Best Pattern Bonus
-    pattern_score = max(vcp_res['vcp_score'], fib_res['fib_score'], pp_res['pp_score'])
-    tech_pts += min(15, int(pattern_score / 2.0))
+    is_fno = is_fno_stock(symbol, fno_set)
     
     # -------------------------------------------------------------
-    # LAYER 2: Volume & Institutional Delivery (Max 25 pts)
+    # LAYER 1: Technical Structure & Pre-Breakout Coiling (Max 30 pts)
+    # -------------------------------------------------------------
+    tech_pts = 0
+    # Base Trend Template
+    if close > last.get('SMA50', 0): tech_pts += 4
+    if close > last.get('SMA200', 0): tech_pts += 4
+    if last.get('SMA50', 0) > last.get('SMA200', 0): tech_pts += 4
+    
+    # Pre-Breakout Compression Points (up to 18 pts)
+    tech_pts += min(18, int(comp_res['compression_score'] * 0.60))
+    
+    # -------------------------------------------------------------
+    # LAYER 2: Volume Dry-Up & Institutional Footprint (Max 25 pts)
     # -------------------------------------------------------------
     vol_pts = 0
     vol_ratio = vol / max(1.0, vol50)
     
-    if vol_ratio >= 2.0: vol_pts += 12
-    elif vol_ratio >= 1.5: vol_pts += 8
-    elif vol_ratio >= 1.0: vol_pts += 5
+    # In pre-breakout setups, low volume (VDU) or Pocket Pivot accumulation is prized!
+    if comp_res.get('is_vdu'): vol_pts += 12
+    elif pp_res.get('is_pocket_pivot'): vol_pts += 10
+    elif vol_ratio >= 1.5: vol_pts += 6
+    else: vol_pts += 4
     
     if deliv_pct >= 55.0: vol_pts += 13
-    elif deliv_pct >= 45.0: vol_pts += 8
-    elif deliv_pct >= 35.0: vol_pts += 4
+    elif deliv_pct >= 45.0: vol_pts += 9
+    elif deliv_pct >= 35.0: vol_pts += 5
     
     # -------------------------------------------------------------
-    # LAYER 3: Relative Strength Clean Rank (Max 20 pts)
+    # LAYER 3: Clean Relative Strength (RS) Rank (Max 20 pts)
     # -------------------------------------------------------------
     rs_pts = 0
     clean_rs = float(last.get('Clean_RS_Raw', 10.0))
     if clean_rs >= 30.0: rs_pts += 20
-    elif clean_rs >= 20.0: rs_pts += 15
-    elif clean_rs >= 12.0: rs_pts += 10
-    elif clean_rs >= 5.0: rs_pts += 5
+    elif clean_rs >= 20.0: rs_pts += 16
+    elif clean_rs >= 12.0: rs_pts += 11
+    elif clean_rs >= 5.0: rs_pts += 6
     
     # -------------------------------------------------------------
     # LAYER 4: Fundamental Quality Gate (Max 15 pts)
     # -------------------------------------------------------------
-    fund_pts = fund_eval.get('fund_pts', 10)
+    fund_pts = fund_eval.get('fund_pts', 8)
     
     # -------------------------------------------------------------
     # LAYER 5: Sector Pole Position Tailwind (Max 10 pts)
@@ -90,12 +101,31 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
             elif cls == "IMPROVING": sector_pts = 6
             elif cls == "NEUTRAL": sector_pts = 3
     else:
-        sector_pts = 5
+        sector_pts = 4
         
-    # Total Raw Alpha Score (Max 100)
+    # Total Raw Alpha Score (Base 100)
     raw_alpha_score = tech_pts + vol_pts + rs_pts + fund_pts + sector_pts
     
-    # Signal Decay Multiplier (Prevents zombie setups)
+    # -------------------------------------------------------------
+    # THE EXTENSION PENALTY & LAUNCHPAD BOOST
+    # -------------------------------------------------------------
+    is_extended = comp_res.get('is_extended', False)
+    dist_to_pivot = comp_res.get('dist_to_pivot_pct', 0.0)
+    
+    # If the stock has already exploded > 4.0% above its pivot, PENALIZE it!
+    if is_extended:
+        raw_alpha_score -= 20.0 # Heavy penalty: Do not buy extended tops!
+    elif -3.8 <= dist_to_pivot <= 1.2:
+        raw_alpha_score += 8.0  # Launchpad boost: Perfectly coiled under resistance!
+        
+    # F&O Liquidity bonus (Institutional grade, zero circuit lock)
+    if is_fno:
+        raw_alpha_score += 4.0
+        
+    # Clamp score to [0, 100]
+    raw_alpha_score = max(0.0, min(100.0, raw_alpha_score))
+    
+    # Signal Decay Multiplier
     if signal_age <= 2: decay = 1.0
     elif signal_age <= 4: decay = 0.95
     elif signal_age <= 6: decay = 0.85
@@ -109,41 +139,45 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
     elif final_alpha_score >= TIER_CONFIRMED_THRESHOLD: conviction = "CONFIRMED"
     else: conviction = "WATCHLIST"
     
-    # Granular Pattern Selection
-    vcp_pat = vcp_res.get('pattern_name', 'None')
-    if vcp_pat in ["High-Tight Flag Breakout", "Stage 2 (52W High) Breakout", "VCP Pivot Breakout"]:
-        primary_pattern = vcp_pat
-    elif fib_res.get('is_fib_setup'):
-        primary_pattern = "Fib Golden Pocket"
+    # Granular Setup Name Assignment
+    comp_setup = comp_res.get('setup_type', 'None')
+    if comp_setup not in ["None", "Consolidation Base", "Extended Past Pivot"]:
+        primary_pattern = comp_setup
     elif pp_res.get('is_pocket_pivot'):
         primary_pattern = "Pocket Pivot"
-    elif vcp_pat in ["VCP Coiling Base", "Volume Dry-Up (VDU) Base", "Stage 2 Momentum Thrust"]:
-        primary_pattern = vcp_pat
+    elif fib_res.get('is_fib_setup'):
+        primary_pattern = "Fib Golden Pocket"
+    elif vcp_res.get('pattern_name') not in ["None", "Base Consolidation"]:
+        primary_pattern = vcp_res.get('pattern_name')
     else:
-        primary_pattern = "Base Consolidation"
+        primary_pattern = "Pre-Breakout Base"
+        
+    # Structural Pivot & Stop Loss
+    pivot_p = comp_res.get('pivot_price', round(close * 1.01, 2))
+    tight_stop = comp_res.get('tight_stop_loss', round(close * 0.94, 2))
     
-    # Structural Stop Loss & Pivot Price (Strict 8% Hard Stop Cap)
-    atr14 = float(last.get('ATR14', close * 0.03))
-    vcp_pivot = vcp_res.get('pivot_price', 0.0)
-    fib_pivot = fib_res.get('fib_50', 0.0)
-    pivot_p = vcp_pivot if vcp_pivot > 0 else (fib_pivot if fib_pivot > 0 else round(close * 1.01, 2))
-    
-    raw_stop = fib_res.get('stop_loss', 0.0) if fib_res.get('is_fib_setup') and fib_res.get('stop_loss', 0) > 0 else round(close - (2.5 * atr14), 2)
-    # Clamp to max 8% initial risk and below close price
+    # Enforce maximum 8% initial stop floor
     hard_stop_floor = round(close * 0.92, 2)
-    suggested_stop = round(max(hard_stop_floor, min(close * 0.98, raw_stop)), 2)
+    final_stop = round(max(hard_stop_floor, min(close * 0.985, tight_stop)), 2)
     
     return {
         "symbol": symbol,
         "sector": sec,
         "close": close,
         "pivot_price": pivot_p,
-        "stop_loss": suggested_stop,
+        "stop_loss": final_stop,
         "alpha_score": final_alpha_score,
         "raw_score": raw_alpha_score,
         "conviction": conviction,
         "signal_age": signal_age,
         "pattern": primary_pattern,
+        "is_coiled": comp_res.get('is_coiled', False),
+        "is_extended": is_extended,
+        "dist_to_pivot_pct": dist_to_pivot,
+        "is_fno": is_fno,
+        "is_nr7": comp_res.get('is_nr7', False),
+        "is_inside_bar": comp_res.get('is_inside_bar', False),
+        "is_vdu": comp_res.get('is_vdu', False),
         "tech_pts": tech_pts,
         "vol_pts": vol_pts,
         "rs_pts": rs_pts,
@@ -159,21 +193,34 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
 
 def select_elite_five(scored_df):
     """
-    Selects up to 5 top-ranked candidates enforcing sector diversification and fundamental excellence.
+    Selects up to 5 top-ranked candidates prioritizing PRE-BREAKOUT COILING
+    and enforcing sector diversification and fundamental excellence.
+    Never selects already-extended stocks (>4% past pivot).
     """
     if scored_df.empty:
         return pd.DataFrame()
         
-    # Strict Filters: Alpha >= 70, Fund Gate Passed, Signal Age <= 3
-    elite_pool = scored_df[
-        (scored_df['alpha_score'] >= 70.0) &
-        (scored_df['passes_fund_gate'] == True) &
-        (scored_df['signal_age'] <= 3)
-    ].sort_values("alpha_score", ascending=False)
+    # Reject already extended stocks!
+    valid_pool = scored_df[scored_df['is_extended'] == False].copy()
+    
+    if valid_pool.empty:
+        valid_pool = scored_df.copy()
+        
+    # Rank by: Coiled Launchpad status -> Alpha Score -> Clean RS
+    elite_pool = valid_pool[
+        (valid_pool['alpha_score'] >= 58.0) &
+        (valid_pool['passes_fund_gate'] == True) &
+        (valid_pool['signal_age'] <= 3)
+    ].sort_values(
+        by=['is_coiled', 'alpha_score', 'clean_rs'],
+        ascending=[False, False, False]
+    )
     
     if elite_pool.empty:
-        # Fallback to top scored if strict pool is narrow
-        elite_pool = scored_df.sort_values("alpha_score", ascending=False)
+        elite_pool = valid_pool.sort_values(
+            by=['is_coiled', 'alpha_score', 'clean_rs'],
+            ascending=[False, False, False]
+        )
         
     selected = []
     sector_counts = {}

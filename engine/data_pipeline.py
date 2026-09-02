@@ -147,6 +147,10 @@ def fetch_price_matrices(tickers, period="1y", batch_size=200):
                 # Basic sanity check
                 if close.isna().all() or (close == 0).all():
                     continue
+                    
+                # Exclude circuit-locked candles with zero range (High == Low) and near-zero volume
+                if (high.iloc[-1] == low.iloc[-1]) and (vol.iloc[-1] < 5000):
+                    continue
                 
                 # Key Moving Averages
                 df['EMA10'] = close.ewm(span=10, adjust=False).mean()

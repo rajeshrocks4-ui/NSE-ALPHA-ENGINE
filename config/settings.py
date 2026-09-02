@@ -2,6 +2,7 @@
 NSE Alpha Engine - Configuration Settings
 =========================================
 Universal constants, scoring thresholds, and risk parameters.
+v5.0: Pre-Breakout Coiling Engine & F&O Radar Integration.
 """
 
 import os
@@ -26,6 +27,7 @@ MAX_PORTFOLIO_RISK_PCT = 0.06     # Maximum 6.0% total open portfolio heat
 MAX_SECTOR_CONCENTRATION = 2      # Max 2 stocks per sector in Elite 5
 MAX_OPEN_POSITIONS = 8            # Maximum concurrent positions in Bull regime
 DISTRIBUTION_POSITION_SIZE_PCT = 0.25 # 25% sizing in Distribution regime
+MAX_POSITION_CAPITAL_PCT = 0.20   # Maximum 20% total account capital in any single stock
 
 # Stop Loss & Trailing Rules
 MAX_INITIAL_STOP_PCT = 0.08       # Hard cap: Never risk more than 8% on initial entry
@@ -33,11 +35,22 @@ ATR_STOP_MULTIPLIER = 3.0         # Chandelier Trailing Stop (Peak Price - 3 * A
 BREAKEVEN_TRIGGER_PCT = 0.08      # Move stop to breakeven when price reaches +8%
 
 # Liquidity & Volume Filters
-MIN_DAILY_TURNOVER_CR = 5.0       # Minimum ₹5 Crore average daily turnover
-MIN_CLOSE_PRICE = 20.0            # Exclude penny stocks below ₹20
+MIN_DAILY_TURNOVER_CR_CASH = 3.0  # Minimum ₹3.0 Crore daily turnover for Cash equities
+MIN_DAILY_TURNOVER_CR_FNO = 15.0  # Minimum ₹15.0 Crore daily turnover for F&O equities
+MIN_CLOSE_PRICE = 25.0            # Exclude penny stocks below ₹25
+
+# Pre-Breakout Coiling & Compression Thresholds (v5.0)
+NR7_PERIOD = 7                    # Narrowest Range of 7 sessions
+NR4_PERIOD = 4                    # Narrowest Range of 4 sessions
+DOJI_BODY_THRESHOLD = 0.007       # Real body < 0.7% of price
+TIGHT_RANGE_THRESHOLD = 0.016     # Daily High-Low range < 1.6% of price
 VOLUME_DRYUP_THRESHOLD = 0.40     # VDU: Volume < 40% of 50-day average
-VOLUME_BREAKOUT_THRESHOLD = 1.50  # Breakout: Volume >= 150% of 50-day average
-MIN_DELIVERY_PCT = 40.0           # Minimum 40% delivery on breakout
+VOLUME_BREAKOUT_THRESHOLD = 1.40  # Breakout volume threshold
+
+# Extension Gate: Catch BEFORE explosive move, NOT after!
+MAX_EXTENSION_ABOVE_PIVOT_PCT = 0.04 # > +4% above pivot triggers -20 pts penalty!
+LAUNCHPAD_ZONE_MIN = -0.038       # Within 3.8% below pivot resistance
+LAUNCHPAD_ZONE_MAX = 0.012        # Up to 1.2% crossing pivot
 
 # Pattern Thresholds
 VCP_MAX_BASE_DEPTH_PCT = 0.28     # Maximum 28% depth from 52W High to Base Low
@@ -52,6 +65,6 @@ MAX_DEBT_TO_EQUITY = 1.0          # Maximum 1.0 Debt-to-Equity ratio
 MIN_FUND_SCORE = 70.0             # Minimum 70/100 Fundamental Quality Score
 
 # Conviction Tier Thresholds (0 - 100 Alpha Score)
-TIER_APEX_THRESHOLD = 90.0
-TIER_STRONG_THRESHOLD = 75.0
-TIER_CONFIRMED_THRESHOLD = 60.0
+TIER_APEX_THRESHOLD = 85.0
+TIER_STRONG_THRESHOLD = 70.0
+TIER_CONFIRMED_THRESHOLD = 58.0

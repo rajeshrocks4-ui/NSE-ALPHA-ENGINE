@@ -1,15 +1,15 @@
-#!/usr/bin/env python3
 """
-NSE Alpha Engine - Master Orchestrator
-======================================
-Coordinates the Quad-Engine Breakout Pipeline:
-1. Data Pipeline (Bhavcopy + yfinance)
-2. Market Regime & Position Sizing
-3. Sector Pole Position
-4. VCP / Fibonacci / Pocket Pivot Detection
-5. Fundamental Quality Gating
-6. 100-Point Alpha Scoring & The Elite 5
-7. Real-Time Risk Management & Scorecard
+NSE Alpha Breakout Engine - Master Orchestrator (v5.0)
+======================================================
+Autonomous pipeline executing:
+1. Dynamic Universe Ingestion from NSE Bhavcopy (All active NSE equities)
+2. Market Regime & Breadth Evaluation (13-Point Composite Model)
+3. Sector Relative Strength & Pole Position Ranking
+4. Fundamental Quality Gate (ROE > 15%, D/E < 1.0)
+5. Pre-Breakout Coiling & Volatility Compression Scoring (NR7, Inside Bar, Doji, VDU, Squeeze)
+6. Institutional F&O Derivatives Radar (Futures & Call Option Squeeze Setups)
+7. Dynamic Position Sizing & Chandelier ATR Trailing Stop Updates
+8. Report Generation & Mobile Notifications (Telegram / Discord)
 """
 
 import os
@@ -18,88 +18,96 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 
-# Add root directory to python path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# Ensure UTF-8 output on Windows consoles
-if sys.platform.startswith('win'):
+# Fix Windows console UTF-8 encoding
+if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding='utf-8')
         sys.stderr.reconfigure(encoding='utf-8')
     except Exception:
         pass
 
-from config.settings import REPORTS_DIR, ACCOUNT_CAPITAL
+from config.settings import (
+    ACCOUNT_CAPITAL, RISK_PER_TRADE_PCT, REPORTS_DIR,
+    PERFORMANCE_DIR, BASE_DIR
+)
 from engine.data_pipeline import fetch_latest_bhavcopy, load_universe, fetch_price_matrices
 from engine.market_regime import compute_market_regime
 from engine.sector_pole import compute_sector_rankings
 from engine.fundamental_gate import load_fundamental_cache, evaluate_fundamentals
 from engine.alpha_scorer import compute_alpha_score, select_elite_five
-from engine.risk_manager import update_performance_scorecard, calculate_position_size
+from engine.risk_manager import calculate_position_size, update_performance_scorecard
+from engine.fno_radar import get_fno_universe, generate_fno_radar_table
+from engine.notifier import format_elite_five_alert, send_telegram_alert, send_discord_alert
 
 def run_pipeline():
-    today_str = datetime.now().strftime("%Y%m%d")
-    today_display = datetime.now().strftime("%d %b %Y")
+    today = datetime.now()
+    today_str = today.strftime("%Y%m%d")
+    today_display = today.strftime("%d %b %Y")
     
     print("=" * 80)
-    print(f"  🏛️ NSE ALPHA BREAKOUT ENGINE v4.5 — {today_display}")
-    print("  Quad-Engine: VCP Coiling | Fib Golden Pocket | Pocket Pivot | Stage 2 Base")
+    print(f"  🏛️ NSE ALPHA BREAKOUT ENGINE v5.0 — {today_display}")
+    print("  Pre-Breakout Coiling Engine & Institutional F&O Radar")
+    print("  NR7 | Inside Bar | Doji | VDU | Bollinger Squeeze | Leading Sectors")
     print("=" * 80)
     
     # -------------------------------------------------------------
-    # Step 1: Load Data
+    # Step 1: Market Data Ingestion
     # -------------------------------------------------------------
     print("\n[1/6] Ingesting Market Data...")
     bhav_df = fetch_latest_bhavcopy()
-    bhav_lookup = {}
-    if not bhav_df.empty:
-        bhav_df.columns = [c.strip().upper() for c in bhav_df.columns]
-        sym_col = 'TCKRSYMB' if 'TCKRSYMB' in bhav_df.columns else ('SYMBOL' if 'SYMBOL' in bhav_df.columns else '')
-        if sym_col:
-            clean_bhav = bhav_df.drop_duplicates(subset=[sym_col])
-            bhav_lookup = clean_bhav.set_index(sym_col).to_dict(orient='index')
-        print(f"  [+] Loaded Bhavcopy: {len(bhav_df)} entries with delivery metrics.")
-        
-    tickers = load_universe(bhav_df=bhav_df)
-    price_matrices = fetch_price_matrices(tickers, period="1y")
-    
-    if not price_matrices:
-        print("[Error] No price matrices available. Exiting.")
+    if bhav_df is None or bhav_df.empty:
+        print("[Error] Failed to load Bhavcopy. Aborting scan.")
         return
         
+    bhav_lookup = {}
+    sym_col = 'TCKRSYMB' if 'TCKRSYMB' in bhav_df.columns else ('SYMBOL' if 'SYMBOL' in bhav_df.columns else '')
+    if sym_col:
+        for _, row in bhav_df.iterrows():
+            bhav_lookup[f"{str(row[sym_col]).strip()}.NS"] = row
+            
+    universe_tickers = load_universe(bhav_df)
+    price_matrices = fetch_price_matrices(universe_tickers, period="1y", batch_size=200)
+    
+    if not price_matrices:
+        print("[Error] Failed to generate price matrices. Aborting scan.")
+        return
+        
+    print(f"  [Data] Successfully processed {len(price_matrices)} clean active NSE equity series.")
+    
     # -------------------------------------------------------------
-    # Step 2: Market Regime & Sizing
+    # Step 2: Market Regime & Breadth
     # -------------------------------------------------------------
     print("\n[2/6] Evaluating Market Regime & Breadth...")
     regime, regime_score, regime_metrics = compute_market_regime(price_matrices)
     print(f"  [+] Regime: {regime} (Score: {regime_score}/13) | Guideline: {regime_metrics['position_size_pct']}% Position Size")
     
     # -------------------------------------------------------------
-    # Step 3: Sector Rotation & Pole Position
+    # Step 3: Sector Relative Strength & Pole Position
     # -------------------------------------------------------------
     print("\n[3/6] Computing Sector Rotation & Pole Position...")
     sector_df = compute_sector_rankings(price_matrices)
-    if not sector_df.empty:
-        pole_sectors = sector_df[sector_df['classification'] == "POLE POSITION"]['sector'].tolist()
-        print(f"  [+] Pole Position Sectors: {', '.join(pole_sectors) if pole_sectors else 'None'}")
-        
-    # -------------------------------------------------------------
-    # Step 4: Fundamental Quality Gate
-    # -------------------------------------------------------------
-    print("\n[4/6] Loading Fundamental Quality Cache...")
-    fund_cache = load_fundamental_cache()
-    print(f"  [+] Fundamental profiles loaded: {len(fund_cache)} stocks.")
+    pole_sectors = sector_df[sector_df['classification'] == "POLE POSITION"]['sector'].tolist() if not sector_df.empty else []
+    print(f"  [+] Pole Position Sectors: {', '.join(pole_sectors) if pole_sectors else 'Broad Market Convergence'}")
     
     # -------------------------------------------------------------
-    # Step 5: Alpha Scoring & Pattern Recognition
+    # Step 4: Fundamental Quality Cache & F&O Universe
     # -------------------------------------------------------------
-    print("\n[5/6] Executing 100-Point Alpha Convergence Matrix...")
+    print("\n[4/6] Loading Fundamental Quality Cache & F&O Universe...")
+    fund_cache = load_fundamental_cache()
+    fno_set = get_fno_universe()
+    print(f"  [+] Fundamental profiles loaded: {len(fund_cache)} stocks.")
+    print(f"  [+] Active F&O Derivatives universe: {len(fno_set)} institutional stocks.")
+    
+    # -------------------------------------------------------------
+    # Step 5: Pre-Breakout Alpha Scoring & Coiling Recognition
+    # -------------------------------------------------------------
+    print("\n[5/6] Executing 100-Point Pre-Breakout Coiling Matrix...")
     scored_results = []
     
     for symbol, df in price_matrices.items():
         bhav_row = bhav_lookup.get(symbol)
         fund_eval = evaluate_fundamentals(symbol, fund_cache)
-        res = compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_df, signal_age=1)
+        res = compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_df, signal_age=1, fno_set=fno_set)
         if res:
             scored_results.append(res)
             
@@ -108,8 +116,13 @@ def run_pipeline():
         print("[Warn] No candidates passed basic filters.")
         return
         
-    scored_df = scored_df.sort_values("alpha_score", ascending=False).reset_index(drop=True)
+    scored_df = scored_df.sort_values(
+        by=['is_coiled', 'alpha_score', 'clean_rs'],
+        ascending=[False, False, False]
+    ).reset_index(drop=True)
+    
     elite_five = select_elite_five(scored_df)
+    fno_radar = generate_fno_radar_table(scored_df, top_n=5)
     
     # -------------------------------------------------------------
     # Step 6: Risk Management & Report Generation
@@ -122,14 +135,14 @@ def run_pipeline():
     
     lines = [
         f"# 🎯 NSE Master Alpha Report — {today_display}",
-        f"> **Alpha Engine v4.5** | Quad-Engine Convergence | Market Regime: **{regime}** ({regime_metrics['position_size_pct']}% Sizing)",
+        f"> **Alpha Engine v5.0** | Pre-Breakout Coiling Engine | Market Regime: **{regime}** ({regime_metrics['position_size_pct']}% Sizing)",
         "",
         "---",
-        "## 💎 THE ELITE 5 — RIPE TO BUY",
-        "> **Mathematical Convergence:** VCP / Fib Golden Pocket / Pocket Pivot + ROE > 15% + D/E < 1.0 + Sector Tailwind",
+        "## 💎 THE PRE-BREAKOUT ELITE 5 — COILED SPRINGS",
+        "> **Catching explosive moves BEFORE they happen:** NR7 / Inside Bar / Doji / VDU / Squeeze + Near Pivot (-3.8% to +1.2%) + ROE > 15% + Sector Tailwind",
         "",
-        "| Symbol | Sector | Pattern | Price | Stop Loss | Alpha Score | Est. Shares | Capital Req | R/R |",
-        "|--------|--------|---------|-------|-----------|-------------|-------------|-------------|-----|"
+        "| Symbol | Segment | Sector | Setup Classification | Price | Pivot Dist | Stop Loss | Alpha Score | Est. Shares | Capital Req | R/R |",
+        "|--------|:-------:|--------|----------------------|-------|:----------:|-----------|:-----------:|:-----------:|:-----------:|:---:|"
     ]
     
     regime_mult = regime_metrics['position_size_pct'] / 100.0
@@ -137,10 +150,38 @@ def run_pipeline():
     if not elite_five.empty:
         for _, r in elite_five.iterrows():
             shares, inv, risk_p = calculate_position_size(r['close'], r['stop_loss'], regime_mult)
-            lines.append(f"| **{r['symbol']}** | {r['sector']} | `{r['pattern']}` | ₹{r['close']:.1f} | ₹{r['stop_loss']:.1f} | 🟢 **{r['alpha_score']:.1f}** | {shares} | ₹{inv:,.0f} | 1:4+ |")
+            fno_badge = "🔥 `F&O`" if r.get('is_fno') else "⚡ `CASH`"
+            dist_str = f"{r.get('dist_to_pivot_pct', 0.0):+.1f}%"
+            lines.append(
+                f"| **{r['symbol']}** | {fno_badge} | {r['sector']} | `{r['pattern']}` | "
+                f"₹{r['close']:.1f} | `{dist_str}` | ₹{r['stop_loss']:.1f} | 🟢 **{r['alpha_score']:.1f}** | "
+                f"{shares} | ₹{inv:,.0f} | 1:5+ |"
+            )
     else:
-        lines.append("| *No candidates met the 100% strict convergence today.* | | | | | | | | |")
+        lines.append("| *No candidates met the strict pre-breakout coiling criteria today.* | | | | | | | | | | |")
         
+    # F&O Derivatives Radar Section
+    lines.extend([
+        "",
+        "---",
+        "## ⚡ INSTITUTIONAL F&O DERIVATIVES RADAR",
+        "> **Top 5 Liquid F&O Coils:** Infinite liquidity, zero circuit freeze, ideal for **Cash, Futures, or ATM/OTM Call Options** before IV surge.",
+        "",
+        "| Rank | Symbol | Sector | Setup Pattern | Price | Pivot Dist | Stop Loss | Clean RS | Alpha Score |",
+        "|:----:|--------|--------|---------------|-------|:----------:|-----------|:--------:|:-----------:|"
+    ])
+    
+    if not fno_radar.empty:
+        for idx, r in fno_radar.iterrows():
+            dist_str = f"{r.get('dist_to_pivot_pct', 0.0):+.1f}%"
+            lines.append(
+                f"| {idx+1} | **{r['symbol']}** | {r['sector']} | `{r['pattern']}` | "
+                f"₹{r['close']:.1f} | `{dist_str}` | ₹{r['stop_loss']:.1f} | {r['clean_rs']} | 🟢 **{r['alpha_score']:.1f}** |"
+            )
+    else:
+        lines.append("| *No F&O stocks currently resting in launchpad coiling zone.* | | | | | | | | |")
+        
+    # Market Regime Dashboard
     lines.extend([
         "",
         "---",
@@ -155,23 +196,33 @@ def run_pipeline():
         f"| 52W High / Low Ratio | {regime_metrics['nh_nl_ratio']} | {'🟢 Bullish' if regime_metrics['nh_nl_ratio'] >= 2.0 else '🟡 Neutral'} |",
         "",
         "---",
-        "## 🔥 Top Conviction Setups (APEX & STRONG Tiers)",
+        "## 🔥 Full Conviction Watchlist (APEX & STRONG Tiers)",
+        "> *Unextended candidates with superior Relative Strength and Volume footprint.*",
         "",
-        "| Rank | Symbol | Sector | Pattern | Price | Stop Loss | Deliv % | Clean RS | Alpha Score |",
-        "|------|--------|--------|---------|-------|-----------|---------|----------|-------------|"
+        "| Rank | Symbol | Segment | Sector | Setup Pattern | Price | Stop Loss | Deliv % | Clean RS | Alpha Score |",
+        "|:----:|--------|:-------:|--------|---------------|-------|-----------|:-------:|:--------:|:-----------:|"
     ])
     
-    top_candidates = scored_df[scored_df['conviction'].isin(['APEX', 'STRONG', 'CONFIRMED'])].head(15)
+    top_candidates = scored_df[
+        (scored_df['conviction'].isin(['APEX', 'STRONG', 'CONFIRMED'])) &
+        (scored_df['is_extended'] == False)
+    ].head(15)
+    
     for idx, r in top_candidates.iterrows():
-        lines.append(f"| {idx+1} | **{r['symbol']}** | {r['sector']} | `{r['pattern']}` | ₹{r['close']:.1f} | ₹{r['stop_loss']:.1f} | {r['deliv_pct']}% | {r['clean_rs']} | **{r['alpha_score']:.1f}** |")
+        fno_badge = "F&O" if r.get('is_fno') else "CASH"
+        lines.append(
+            f"| {idx+1} | **{r['symbol']}** | `{fno_badge}` | {r['sector']} | `{r['pattern']}` | "
+            f"₹{r['close']:.1f} | ₹{r['stop_loss']:.1f} | {r['deliv_pct']}% | {r['clean_rs']} | **{r['alpha_score']:.1f}** |"
+        )
         
     lines.extend([
         "",
         "---",
-        "## 📖 Asymmetric Execution Rules",
-        "1. **Never exceed fixed 1.0% Account Risk** per individual position.",
-        "2. **Chandelier ATR Trailing Stop:** Trail stops at `Peak Price - (3 * ATR14)` as stock advances.",
-        "3. **Breakeven Rule:** When position is up **+8.0%**, automatically move stop loss to entry price.",
+        "## 📖 Pre-Breakout Execution Rules",
+        "1. **Never buy extended > +4.0% past pivot:** The highest R/R trades happen inside the coil, NOT after the run.",
+        "2. **Fixed 1.0% Account Risk & 20% Max Position:** Tight stops (1.5% to 3.0%) allow larger shares safely.",
+        "3. **Chandelier ATR Trailing Stop:** Trail stops at `Peak Price - (3 * ATR14)` as stock advances into Stage 2.",
+        "4. **Breakeven Rule:** When position reaches **+8.0%**, automatically move stop loss to entry price.",
         "",
         f"*Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M IST')} | Automated via GitHub Actions*"
     ])
@@ -185,8 +236,7 @@ def run_pipeline():
     # -------------------------------------------------------------
     # Step 7: Push Notifications (Telegram / Discord)
     # -------------------------------------------------------------
-    from engine.notifier import format_elite_five_alert, send_telegram_alert, send_discord_alert
-    alert_msg = format_elite_five_alert(elite_five, regime, regime_metrics, today_display)
+    alert_msg = format_elite_five_alert(elite_five, regime, regime_metrics, today_display, fno_radar)
     
     if send_telegram_alert(alert_msg):
         print("  [+] Dispatched Telegram notification successfully.")
