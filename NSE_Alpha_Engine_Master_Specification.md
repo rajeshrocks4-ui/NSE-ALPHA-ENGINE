@@ -1,24 +1,29 @@
-# 🏛️ NSE ALPHA BREAKOUT ENGINE v4.5
-## Complete Quantitative System Specification & Operating Manual
-*Self-Contained Reference Guide for Systematic Equities Trading*
+# 🏛️ NSE ALPHA BREAKOUT ENGINE v5.1
+## Complete Quantitative System Specification & Master Architecture Manual
+*Self-Contained Institutional Reference Guide for Pre-Breakout Coiling & Trend Momentum*
 
 ---
 
-## 1. SYSTEM OVERVIEW & CORE PHILOSOPHY
+## 1. SYSTEM OVERVIEW & THE PRE-BREAKOUT PARADIGM
 
-The **NSE Alpha Breakout Engine** is an institutional-grade quantitative trend-following and momentum breakout system designed specifically for the **National Stock Exchange of India (NSE)**.
+The **NSE Alpha Breakout Engine v5.1** is an institutional-grade quantitative trading system designed exclusively for the **National Stock Exchange of India (NSE)**. 
 
-### Core Principles:
-1. **Asymmetric Risk/Reward (Minimum 1:4 to 1:7 R/R):** We do not chase extended +15% breakouts. We buy early "in-the-base" cheat setups (Pocket Pivots, Fibonacci Golden Pockets, Volatility Contraction Pivots) where the initial risk is tight (2% to 5%) and the upside is explosive.
-2. **Dynamic Market Exposure (The Regime Shield):** In unfavorable or distribution market environments, position size is automatically throttled down to **25%** to prevent capital erosion during choppy drawdowns.
-3. **Fixed-Fractional Mathematical Risk:** Every trade risks exactly **1.0% of total portfolio capital**, strictly protected by a **20% single-position capital allocation ceiling** and an **8.0% hard stop floor**.
-4. **Chandelier ATR Trailing Stops:** Profits are allowed to compound undisturbed during massive Stage 2 trends, trailing by `Peak Price - (3 * ATR14)` and moving to breakeven automatically at `+8.0%` gain.
+### Core Paradigm Shift (v4.5 → v5.1):
+> **We never chase extended breakouts after the explosive move has already happened.**
+> Instead, we detect the **volatility compression coil BEFORE ignition** — catching stocks resting inside their base with Volume Dry-Up (VDU), Narrow Range 7 (NR7), and Inside Bars (IB) right at the launchpad zone (-3.8% to +1.2% from pivot).
+
+### Five Master Pillars:
+1. **Pre-Breakout Coiling Recognition:** Identifies structural energy buildup via NR7, Inside Bars, Double Inside Bars, Doji EMA Squeezes, and TTM Bollinger Band Squeezes before momentum bursts.
+2. **Asymmetric Risk/Reward (1:5 to 1:8+ R/R):** Anchoring stops tightly below the compression candle low (1.5% to 3.0%) allows 3x to 5x larger share sizing within the identical 1% account risk envelope.
+3. **Institutional F&O Derivatives Radar:** Dedicated continuous screening across all 210 liquid NSE F&O stocks for Cash, Futures, and ATM/OTM Call Option trades before Implied Volatility (IV) expands.
+4. **Authentic Institutional Data Feed:** Direct integration with the official NSE MTO (Security-wise Delivery Position) report for genuine delivery percentage metrics and official Nifty Total Market industry classifications.
+5. **Directional Uptrend & RS Quality Gate:** Rejects bearish breakdown coils (`Close < SMA50` and `Close < SMA200`) and enforces a mandatory Clean RS gate ($\ge 10.0$) so only leading market outperformers are selected.
 
 ---
 
 ## 2. UNIVERSE SELECTION & LIQUIDITY FILTERS
 
-The engine scans the **entire active NSE equity universe (~2,200+ stocks)** dynamically extracted from the daily official NSE Bhavcopy.
+The engine dynamically filters the entire NSE universe (~2,200+ listed equities) from the daily official NSE Bhavcopy.
 
 ```
                   ┌─────────────────────────────────────────────────┐
@@ -41,152 +46,92 @@ The engine scans the **entire active NSE equity universe (~2,200+ stocks)** dyna
                                            │
                                            ▼
                   ┌─────────────────────────────────────────────────┐
-                  │              LIQUIDITY GATES                    │
-                  │   • Minimum Close Price >= ₹20.0                │
-                  │   • Minimum Daily Turnover >= ₹10 Lakhs         │
+                  │              LIQUIDITY & CIRCUIT GATES          │
+                  │   • Minimum Close Price >= ₹25.0                │
+                  │   • Cash Equities: 50-day Turnover >= ₹3.0 Cr   │
+                  │   • F&O Equities: 50-day Turnover >= ₹15.0 Cr   │
+                  │   • Circuit Freeze Filter: High != Low or       │
+                  │     Volume > 5,000 shares                       │
                   └────────────────────────┬────────────────────────┘
                                            │
                                            ▼
-                             [ACTIVE UNIVERSE: ~2,200 STOCKS]
+                             [ACTIVE UNIVERSE: ~1,800 STOCKS]
 ```
 
 ---
 
-## 3. MARKET REGIME & BREADTH SCORING MODEL
+## 3. VOLATILITY COMPRESSION & SETUP PATTERNS
 
-Market Regime is evaluated daily using a **13-Point Composite Breadth Model** calculated across all active NSE stocks:
+The engine scans for five high-probability pre-breakout compression patterns:
 
-| Breadth Indicator | Threshold for 1 Point | Max Points |
-|:---|:---|:---:|
-| **% of Stocks > 50-day SMA** | `>= 50.0%` (2 pts) \| `>= 65.0%` (3 pts) | **3** |
-| **% of Stocks > 150-day SMA** | `>= 50.0%` (2 pts) \| `>= 65.0%` (3 pts) | **3** |
-| **% of Stocks > 200-day SMA** | `>= 50.0%` (2 pts) \| `>= 65.0%` (3 pts) | **3** |
-| **52-Week High / Low Ratio** | `>= 1.5` (2 pts) \| `>= 3.0` (4 pts) | **4** |
-| **TOTAL COMPOSITE SCORE** | | **13** |
+### A. NR7 (Narrow Range 7)
+* **Definition:** Today's daily trading range `(High - Low)` is the narrowest of the last 7 sessions.
+* **Physics:** Represents maximum volatility contraction and exhaustion of supply before sudden expansion.
 
-### Exposure & Position Sizing Matrix:
+### B. Inside Bar (IB) & Double Inside Bar
+* **Definition:** Today's high is lower than yesterday's high, and today's low is higher than yesterday's low (`High <= Prev_High` and `Low >= Prev_Low`).
+* **Double IB:** Two consecutive inside bars nested within the mother bar — represents extreme institutional coiling.
 
-| Regime Classification | Breadth Score | Position Sizing % | Action Protocol |
-|:---|:---:|:---:|:---|
-| 🟢 **CONFIRMED BULL** | **11 – 13** | **100%** *(Full Size)* | Aggressive buying. Full allocation to Elite 5. |
-| 🟡 **BULL PAUSE / CAUTION** | **8 – 10** | **75%** *(Reduced)* | Selective buying. Focus only on APEX tier setups. |
-| 🟠 **PRESSURE / WEAKNESS** | **5 – 7** | **50%** *(Half Size)* | Defensive stance. Tighten trailing stops. |
-| 🔴 **DISTRIBUTION / BEAR** | **0 – 4** | **25%** *(Quarter Size)* | Strict capital preservation. No chasing. Raise cash. |
+### C. Volume Dry-Up (VDU)
+* **Definition:** Daily volume is $< 0.60 \times$ the 50-day moving average (`VOL50`).
+* **Physics:** Proves that institutional sellers have finished liquidating; no floating supply remains to resist an upward breakout.
 
----
+### D. TTM Bollinger Squeeze
+* **Definition:** Bollinger Band width `(Upper BB - Lower BB) / SMA20` is within 15% of its 60-day minimum.
+* **Physics:** Extreme price equilibrium preceding an explosive directional expansion.
 
-## 4. THE QUAD-PATTERN SETUP BLUEPRINT
-
-The engine identifies 4 distinct institutional price-action setups:
-
-### Setup A: Minervini Volatility Contraction Pattern (VCP)
-* **Stage 2 Trend Template:** `Close > SMA50 > SMA150 > SMA200`.
-* **Base Construction:** Base depth between 52-week high and base low must be `<= 28%` over a minimum of 4 weeks.
-* **Wave Contraction:** Standard deviation of price changes contracts progressively: $\text{Std}(30d) > \text{Std}(15d) > \text{Std}(5d)$.
-* **Volume Dry-Up (VDU):** Minimum volume in the last 5 days $< 40\%$ of the 50-day average volume ($\text{Vol} < 0.40 \times \text{VOL50}$).
-* **Trigger:** Close crosses the pivot price (20-day high) on Volume $\ge 150\%$ of 50-day average volume.
-
-### Setup B: Fibonacci Golden Pocket Pullback (0.50 – 0.618)
-* **Impulse Leg:** Chronological upward thrust where $\text{Low Index} < \text{High Index}$ and prior surge $\ge +18\%$.
-* **Golden Pocket Zone:** Current price pulls back into the retracement zone:
-  $$\text{Fib 50.0\%} = \text{High} - (0.50 \times \text{Range})$$
-  $$\text{Fib 61.8\%} = \text{High} - (0.618 \times \text{Range})$$
-* **Moving Average Confluence:** Current price is within $\pm 2.0\%$ of the **20 EMA** or **50 SMA**.
-* **Reversal Candle:** Low tests the Golden Pocket and closes in the upper 40% of the daily range.
-
-### Setup C: Institutional Pocket Pivot
-* **In-the-Base Accumulation:** Stock is resting within a multi-week base or pulling back to the 10 EMA / 20 EMA / 50 SMA.
-* **Volume Footprint:** Today's up-volume is **greater than the highest down-day volume of the past 10 trading sessions**.
-* **Moving Average Support:** Current close is above the 10 EMA or 20 EMA and within 3% of the moving average.
-
-### Setup D: High-Tight Flag & Stage 2 Breakout
-* **High-Tight Flag:** Explosive surge of $+60\%$ to $+100\%$ in 4 to 8 weeks followed by a shallow consolidation flag $\le 20\%$ deep.
-* **Stage 2 (52W High) Breakout:** Price breaks within 1.5% of 52-week high on Volume $\ge 150\%$ of 50-day average.
+### E. Launchpad Proximity Gate
+* **Definition:** Price is resting between **-3.8% and +1.2%** of the structural base pivot (`Dist_to_Pivot_Pct`).
+* **Penalty:** Stocks extended $> +4.0\%$ past pivot receive a **-20 point penalty** and are strictly disqualified from the Elite 5.
 
 ---
 
-## 5. THE 100-POINT ALPHA CONVERGENCE MATRIX
+## 4. 100-POINT PRE-BREAKOUT ALPHA SCORING MATRIX
 
-Every stock in the market is scored objectively out of 100 points:
+Every stock is evaluated across a 5-layer quantitative scoring rubric:
+
+| Layer | Dimension | Max Points | Core Institutional Criteria |
+|:---:|:---|:---:|:---|
+| **1** | **Technical Structure & Coiling** | **30** | Base trend template (Close > 50SMA > 200SMA) + NR7 (+8) + Double Inside Bar (+8) + VDU (+5) + Squeeze (+4) |
+| **2** | **Volume & Real Delivery Position** | **25** | Pocket Pivot (+10) OR VDU (+12) + Official NSE Delivery % $\ge 55\%$ (+13 pts) / $\ge 45\%$ (+9 pts) |
+| **3** | **Clean Relative Strength (RS)** | **20** | Return / ADR Volatility vs Nifty: RS $\ge 25$ (+20 pts) / $\ge 15$ (+14 pts) / $\ge 8$ (+8 pts) |
+| **4** | **Fundamental Quality Gate** | **15** | ROE $\ge 15\%$ (+8 pts), Debt/Equity $< 1.0$ (+7 pts). Unrated stocks zeroed out. |
+| **5** | **Sector Pole Position** | **10** | Stock belongs to top 3 leading sectors by 3M/6M Clean RS tailwind. |
+| **MOD** | **Launchpad Proximity Boost** | **+8** | Resting in tight launchpad zone (-3.8% to +1.2% from pivot). |
+| **MOD** | **F&O Derivatives Boost** | **+4** | Member of 210 active NSE F&O universe (infinite liquidity). |
+| **PEN** | **Extension Trap Penalty** | **-20** | Disqualifies any stock extended $> +4.0\%$ above pivot. |
+
+---
+
+## 5. RISK MANAGEMENT & EXECUTION RULES
+
+### Position Sizing Formula:
+$$\text{Position Risk} = \text{Total Capital (₹10 Lakh)} \times 1.0\% = ₹10,000$$
+$$\text{Shares to Buy} = \frac{₹10,000 \times \text{Regime Multiplier}}{\text{Trigger Price} - \text{Stop Loss}}$$
+
+### Execution Safeguards:
+1. **Single Position Ceiling:** Never allocate more than **20% of total capital (₹2,00,000)** into any single position, regardless of how tight the stop loss is.
+2. **Breakout Ignition Trigger:** Orders are triggered only when price trades **+0.2% above the mother bar / NR7 high** with volume expansion $\ge 1.4\times$ 50MA.
+3. **Hard Stop Floor:** Stop losses are anchored below the NR7/Inside Bar candle low, with a maximum risk floor capped at **-8.0%**.
+4. **Chandelier ATR Trailing Stop:** Once in profit, trail by `Peak Price - (3 * ATR14)`.
+5. **Breakeven Rule:** When position gains **+8.0%**, immediately move stop loss to entry price (zero-risk free roll).
+
+---
+
+## 6. DAILY PRODUCTION PIPELINE (AUTOMATED AT 21:00 IST)
+
+The system runs autonomously via Windows Task Scheduler (`run_daily_alpha.bat`) and GitHub Actions:
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     100-POINT ALPHA SCORING BREAKDOWN                       │
-├──────────────────────────────────────┬──────────────────────────────────────┤
-│ 1. Technical Pattern & Trend Setup   │ 30 Points Maximum                    │
-│ 2. Volume Expansion & Delivery %     │ 25 Points Maximum                    │
-│ 3. Clean Relative Strength (RS)      │ 20 Points Maximum                    │
-│ 4. Fundamental Quality Gate          │ 15 Points Maximum                    │
-│ 5. Sector Tailwind & Pole Position   │ 10 Points Maximum                    │
-├──────────────────────────────────────┴──────────────────────────────────────┤
-│ TOTAL MAXIMUM ALPHA SCORE: 100 POINTS                                       │
-└─────────────────────────────────────────────────────────────────────────────┘
+[1/6] Ingest Market Bhavcopy & Official MTO Delivery Data (archives.nseindia.com)
+  │
+[2/6] Evaluate Market Regime & Breadth (% above 50, 150, 200 SMA; NH/NL Ratio)
+  │
+[3/6] Compute Sector Rotation & Pole Position (Nifty Total Market Mapping)
+  │
+[4/6] Load Fundamental Quality Cache & F&O Universe (210 symbols)
+  │
+[5/6] Run 100-Point Pre-Breakout Coiling Recognition & Directional Trend Filter
+  │
+[6/6] Update Performance Scorecard, Generate Master Report & Dispatch Telegram Alerts
 ```
-
-### Signal Decay Multiplier:
-To prevent dead, stale setups from staying on the watchlist:
-$$\text{Final Score} = \text{Raw Score} \times \text{Decay Multiplier}$$
-* **Days 1 – 2 (Fresh Breakout):** Multiplier = `1.00` (100%)
-* **Days 3 – 4:** Multiplier = `0.95` (95%)
-* **Days 5 – 6:** Multiplier = `0.85` (85%)
-* **Day 7+:** Multiplier = `0.75` (75% — Setup disqualified from Elite 5)
-
-### The Elite 5 Selection Rules:
-1. Must have **Alpha Score $\ge 60.0$** (Ranked by highest score).
-2. Must pass the **Fundamental Quality Gate** ($\text{ROE} \ge 15.0\%$, $\text{Debt/Equity} \le 1.0$).
-3. **Sector Diversity Rule:** Maximum of **2 stocks per sector** in the Elite 5 to eliminate concentration risk.
-
----
-
-## 6. RISK MANAGEMENT & EXECUTION RULES
-
-### Rule 1: Fixed-Fractional Position Sizing
-$$\text{Shares} = \min\left( \left\lfloor \frac{\text{Capital} \times 1\% \times \text{Regime Multiplier}}{\text{Entry Price} - \text{Stop Loss}} \right\rfloor, \left\lfloor \frac{\text{Capital} \times 20\% \times \text{Regime Multiplier}}{\text{Entry Price}} \right\rfloor \right)$$
-
-* **Fixed 1% Dollar Risk:** You never risk more than 1.0% of your account on a trade.
-* **Strict 20% Single-Position Capital Cap:** No single stock can ever exceed 20% of total portfolio capital (protects against overnight gap-downs).
-
-### Rule 2: Strict 8.0% Initial Hard Stop Floor
-$$\text{Initial Stop Loss} = \max(\text{Structural Support}, \text{Entry} \times 0.92)$$
-* No trade is ever initiated with a stop loss wider than **-8.0%**.
-
-### Rule 3: Automatic Breakeven Escalation (+8% Rule)
-* The moment a stock reaches **`+8.0%` profit from entry**, the stop loss is automatically moved to **Entry Price (Cost)**. The trade is now 100% risk-free.
-
-### Rule 4: Chandelier ATR Trailing Stop
-* As the stock advances into a massive trend, the stop loss trails at:
-  $$\text{Trailing Stop} = \text{Peak Price} - (3.0 \times \text{ATR14})$$
-* Never lower a trailing stop. It only ratchets upward.
-
----
-
-## 7. AUTOMATION ARCHITECTURE & TELEGRAM INTEGRATION
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    24/7 CLOUD AUTOMATION ARCHITECTURE                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 1. GitHub Actions Cloud VM wakes up at 21:00 IST (15:30 UTC) Mon-Fri.       │
-│ 2. Downloads today's official NSE Bhavcopy directly from NSE servers.       │
-│ 3. Ingests 1-year price data for 2,200+ equities via 12-batch downloader.   │
-│ 4. Computes Market Regime, Sector Pole Position, and Quad-Patterns.         │
-│ 5. Isolates The Elite 5 and updates performance/scorecard.md.               │
-│ 6. Commits reports/Master_Alpha_Report_YYYYMMDD.md to GitHub repository.     │
-│ 7. Dispatches instant formatted notification to Telegram (@srkdoc86_bot).   │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 8. DAILY TRADER OPERATING SOP (Checklist)
-
-### 🌙 Night Before (After 21:05 IST):
-1. Open your **Telegram** chat with `@srkdoc86_bot`.
-2. Review the **Market Regime** (e.g. `DISTRIBUTION -> 25% Sizing`).
-3. Note **The Elite 5** focus candidates with their Entry, Stop Loss, and Calculated Position Sizes.
-
-### ☀️ Morning (09:00 – 09:15 IST):
-1. Log into your broker terminal (Zerodha, Groww, Upstox, Dhan, etc.).
-2. Place **Buy Stop-Limit Orders** for the Elite 5 candidates at `Pivot Price + 0.2%`.
-3. Set your GTT (Good-Till-Triggered) **Stop Loss** at the specified stop loss level.
-4. **Execution Golden Rule:** If a stock gaps up $> +2.5\%$ above the pivot price at the open, **DO NOT CHASE**. Wait for an intraday pullback to the pivot.
