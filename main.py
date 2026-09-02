@@ -30,7 +30,7 @@ from config.settings import (
     ACCOUNT_CAPITAL, RISK_PER_TRADE_PCT, REPORTS_DIR,
     PERFORMANCE_DIR, BASE_DIR
 )
-from engine.data_pipeline import fetch_latest_bhavcopy, load_universe, fetch_price_matrices
+from engine.data_pipeline import fetch_latest_bhavcopy, fetch_delivery_data, load_universe, fetch_price_matrices
 from engine.market_regime import compute_market_regime
 from engine.sector_pole import compute_sector_rankings
 from engine.fundamental_gate import load_fundamental_cache, evaluate_fundamentals
@@ -51,19 +51,30 @@ def run_pipeline():
     print("=" * 80)
     
     # -------------------------------------------------------------
-    # Step 1: Market Data Ingestion
+    # Step 1: Market Data Ingestion & Official Delivery Metrics
     # -------------------------------------------------------------
-    print("\n[1/6] Ingesting Market Data...")
+    print("\n[1/6] Ingesting Market Data & Delivery Position...")
     bhav_df = fetch_latest_bhavcopy()
     if bhav_df is None or bhav_df.empty:
         print("[Error] Failed to load Bhavcopy. Aborting scan.")
         return
         
+    deliv_map = fetch_delivery_data()
     bhav_lookup = {}
-    sym_col = 'TCKRSYMB' if 'TCKRSYMB' in bhav_df.columns else ('SYMBOL' if 'SYMBOL' in bhav_df.columns else '')
+    col_map = {str(c).upper(): c for c in bhav_df.columns}
+    sym_col = col_map.get('TCKRSYMB', col_map.get('SYMBOL', ''))
     if sym_col:
         for _, row in bhav_df.iterrows():
-            bhav_lookup[f"{str(row[sym_col]).strip()}.NS"] = row
+            sym_clean = str(row[sym_col]).strip().upper()
+            sym_key = f"{sym_clean}.NS"
+            row_dict = row.to_dict()
+            # Attach official delivery percentage from NSE MTO report
+            if sym_key in deliv_map:
+                row_dict['DELIV_PER'] = deliv_map[sym_key]
+            elif sym_clean in deliv_map:
+                row_dict['DELIV_PER'] = deliv_map[sym_clean]
+            bhav_lookup[sym_key] = row_dict
+            bhav_lookup[sym_clean] = row_dict
             
     universe_tickers = load_universe(bhav_df)
     price_matrices = fetch_price_matrices(universe_tickers, period="1y", batch_size=200)
@@ -141,8 +152,8 @@ def run_pipeline():
         "## 💎 THE PRE-BREAKOUT ELITE 5 — COILED SPRINGS",
         "> **Catching explosive moves BEFORE they happen:** NR7 / Inside Bar / Doji / VDU / Squeeze + Near Pivot (-3.8% to +1.2%) + ROE > 15% + Sector Tailwind",
         "",
-        "| Symbol | Segment | Sector | Setup Classification | Price | Pivot Dist | Stop Loss | Alpha Score | Est. Shares | Capital Req | R/R |",
-        "|--------|:-------:|--------|----------------------|-------|:----------:|-----------|:-----------:|:-----------:|:-----------:|:---:|"
+        "| Symbol | Segment | Sector | Setup Classification | Close | Buy Trigger | Stop Loss | Deliv % | Clean RS | Alpha Score | Est. Shares | Capital Req | R/R |",
+        "|--------|:-------:|--------|----------------------|-------|:-----------:|-----------|:-------:|:--------:|:-----------:|:-----------:|:-----------:|:---:|"
     ]
     
     regime_mult = regime_metrics['position_size_pct'] / 100.0
@@ -151,14 +162,14 @@ def run_pipeline():
         for _, r in elite_five.iterrows():
             shares, inv, risk_p = calculate_position_size(r['close'], r['stop_loss'], regime_mult)
             fno_badge = "🔥 `F&O`" if r.get('is_fno') else "⚡ `CASH`"
-            dist_str = f"{r.get('dist_to_pivot_pct', 0.0):+.1f}%"
+            trigger_p = r.get('trigger_price', r['close'] * 1.005)
             lines.append(
                 f"| **{r['symbol']}** | {fno_badge} | {r['sector']} | `{r['pattern']}` | "
-                f"₹{r['close']:.1f} | `{dist_str}` | ₹{r['stop_loss']:.1f} | 🟢 **{r['alpha_score']:.1f}** | "
+                f"₹{r['close']:.1f} | `₹{trigger_p:.1f}` | ₹{r['stop_loss']:.1f} | {r['deliv_pct']}% | {r['clean_rs']} | 🟢 **{r['alpha_score']:.1f}** | "
                 f"{shares} | ₹{inv:,.0f} | 1:5+ |"
             )
     else:
-        lines.append("| *No candidates met the strict pre-breakout coiling criteria today.* | | | | | | | | | | |")
+        lines.append("| *No candidates met the strict pre-breakout coiling criteria today.* | | | | | | | | | | | | |")
         
     # F&O Derivatives Radar Section
     lines.extend([
@@ -167,19 +178,19 @@ def run_pipeline():
         "## ⚡ INSTITUTIONAL F&O DERIVATIVES RADAR",
         "> **Top 5 Liquid F&O Coils:** Infinite liquidity, zero circuit freeze, ideal for **Cash, Futures, or ATM/OTM Call Options** before IV surge.",
         "",
-        "| Rank | Symbol | Sector | Setup Pattern | Price | Pivot Dist | Stop Loss | Clean RS | Alpha Score |",
-        "|:----:|--------|--------|---------------|-------|:----------:|-----------|:--------:|:-----------:|"
+        "| Rank | Symbol | Sector | Setup Pattern | Close | Buy Trigger | Stop Loss | Deliv % | Clean RS | Alpha Score |",
+        "|:----:|--------|--------|---------------|-------|:-----------:|-----------|:-------:|:--------:|:-----------:|"
     ])
     
     if not fno_radar.empty:
         for idx, r in fno_radar.iterrows():
-            dist_str = f"{r.get('dist_to_pivot_pct', 0.0):+.1f}%"
+            trigger_p = r.get('trigger_price', r['close'] * 1.005)
             lines.append(
                 f"| {idx+1} | **{r['symbol']}** | {r['sector']} | `{r['pattern']}` | "
-                f"₹{r['close']:.1f} | `{dist_str}` | ₹{r['stop_loss']:.1f} | {r['clean_rs']} | 🟢 **{r['alpha_score']:.1f}** |"
+                f"₹{r['close']:.1f} | `₹{trigger_p:.1f}` | ₹{r['stop_loss']:.1f} | {r['deliv_pct']}% | {r['clean_rs']} | 🟢 **{r['alpha_score']:.1f}** |"
             )
     else:
-        lines.append("| *No F&O stocks currently resting in launchpad coiling zone.* | | | | | | | | |")
+        lines.append("| *No F&O stocks currently resting in launchpad coiling zone.* | | | | | | | | | |")
         
     # Market Regime Dashboard
     lines.extend([

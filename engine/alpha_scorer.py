@@ -165,6 +165,7 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
         "sector": sec,
         "close": close,
         "pivot_price": pivot_p,
+        "trigger_price": comp_res.get('trigger_price', round(close * 1.005, 2)),
         "stop_loss": final_stop,
         "alpha_score": final_alpha_score,
         "raw_score": raw_alpha_score,
@@ -194,7 +195,7 @@ def compute_alpha_score(symbol, df, bhav_row, fund_eval, sector_rank_df, signal_
 def select_elite_five(scored_df):
     """
     Selects up to 5 top-ranked candidates prioritizing PRE-BREAKOUT COILING
-    and enforcing sector diversification and fundamental excellence.
+    and enforcing sector diversification, positive Clean RS (>= 8.0), and fundamental excellence.
     Never selects already-extended stocks (>4% past pivot).
     """
     if scored_df.empty:
@@ -206,18 +207,20 @@ def select_elite_five(scored_df):
     if valid_pool.empty:
         valid_pool = scored_df.copy()
         
-    # Rank by: Coiled Launchpad status -> Alpha Score -> Clean RS
+    # Mandatory RS Gate: Coiling is only valid on market leaders (RS >= 8.0)
     elite_pool = valid_pool[
         (valid_pool['alpha_score'] >= 58.0) &
         (valid_pool['passes_fund_gate'] == True) &
-        (valid_pool['signal_age'] <= 3)
+        (valid_pool['signal_age'] <= 3) &
+        (valid_pool['clean_rs'] >= 8.0)
     ].sort_values(
         by=['is_coiled', 'alpha_score', 'clean_rs'],
         ascending=[False, False, False]
     )
     
     if elite_pool.empty:
-        elite_pool = valid_pool.sort_values(
+        # Fallback to RS >= 5.0
+        elite_pool = valid_pool[valid_pool['clean_rs'] >= 5.0].sort_values(
             by=['is_coiled', 'alpha_score', 'clean_rs'],
             ascending=[False, False, False]
         )

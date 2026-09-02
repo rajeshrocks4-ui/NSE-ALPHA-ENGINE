@@ -11,6 +11,9 @@ ENV/
 *.pkl
 data/cache/
 data/raw/
+data/bhavcopy/*.DAT
+data/bhavcopy/*.csv
+data/bhavcopy/*.zip
 C:\tmp\
 .tmp/
 

@@ -68,6 +68,57 @@ def fetch_latest_bhavcopy(dt=None):
         return pd.read_csv(all_bhav[0])
     return pd.DataFrame()
 
+def fetch_delivery_data(dt=None):
+    """
+    Downloads and parses the official NSE MTO (Security Wise Delivery Position) file.
+    Returns: dict mapping symbol -> deliverable percentage (e.g. {'RELIANCE.NS': 54.2, 'TCS.NS': 62.1})
+    """
+    import requests
+    target_dt = get_last_trading_day(dt)
+    date_str = target_dt.strftime("%d%m%Y")
+    mto_file = BHAVCOPY_DIR / f"MTO_{date_str}.DAT"
+    
+    # 1. Download if missing
+    if not mto_file.exists() or mto_file.stat().st_size < 1000:
+        url = f"https://archives.nseindia.com/archives/equities/mto/MTO_{date_str}.DAT"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        try:
+            r = requests.get(url, headers=headers, timeout=10)
+            if r.status_code == 200:
+                with open(mto_file, "wb") as fp:
+                    fp.write(r.content)
+        except Exception:
+            pass
+            
+    # 2. Check local fallback MTO files
+    if not mto_file.exists() or mto_file.stat().st_size < 1000:
+        local_mtos = sorted(BHAVCOPY_DIR.glob("*[Mm][Tt][Oo]*.DAT"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if local_mtos:
+            mto_file = local_mtos[0]
+            
+    deliv_map = {}
+    if mto_file.exists() and mto_file.stat().st_size > 1000:
+        try:
+            with open(mto_file, "r", encoding="utf-8", errors="ignore") as fp:
+                for line in fp:
+                    parts = line.strip().split(",")
+                    if len(parts) >= 7 and parts[0] == "20":
+                        sym = parts[2].strip().upper()
+                        srs = parts[3].strip().upper()
+                        if srs in ["EQ", "BE", "SM", "ST"]:
+                            try:
+                                d_pct = float(parts[6])
+                                deliv_map[sym] = d_pct
+                                deliv_map[f"{sym}.NS"] = d_pct
+                            except Exception:
+                                pass
+            print(f"  [Data] Loaded official delivery metrics for {len(deliv_map)//2} NSE equities.")
+        except Exception as e:
+            print(f"  [Warn] Failed parsing MTO file: {e}")
+            
+    return deliv_map
+
+
 def load_universe(bhav_df=None, min_turnover_lakhs=10.0):
     """
     Extracts ALL active equity symbols from the NSE Bhavcopy or fallback universe.
@@ -139,6 +190,11 @@ def fetch_price_matrices(tickers, period="1y", batch_size=200):
                     continue
                 
                 df = df.copy()
+                # Eliminate trailing empty placeholder candles from Yahoo Finance
+                df = df.dropna(subset=['Close', 'High', 'Low', 'Volume'])
+                if df.empty or len(df) < 50:
+                    continue
+                    
                 close = df['Close']
                 high = df['High']
                 low = df['Low']

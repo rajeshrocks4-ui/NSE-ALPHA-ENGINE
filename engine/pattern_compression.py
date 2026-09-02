@@ -146,7 +146,9 @@ def detect_compression_pattern(df):
     # -------------------------------------------------------------
     # 4. Primary Setup Name Classification
     # -------------------------------------------------------------
-    if is_double_ib and is_in_launchpad:
+    if is_extended:
+        setup_type = "Extended Past Pivot"
+    elif is_double_ib and is_in_launchpad:
         setup_type = "Double Inside Bar Squeeze"
     elif is_nr7 and is_inside_bar and is_in_launchpad:
         setup_type = "NR7-Inside Bar Launchpad"
@@ -162,16 +164,30 @@ def detect_compression_pattern(df):
         setup_type = "VDU Launchpad Base"
     elif is_in_launchpad and is_tight_range:
         setup_type = "Pre-Breakout Coiling"
-    elif is_extended:
-        setup_type = "Extended Past Pivot"
     else:
         setup_type = "Consolidation Base"
-        
-    is_coiled = (comp_score >= 14) and (not is_extended) and is_in_launchpad
+
+    # -------------------------------------------------------------
+    # Directional Uptrend Filter (Never buy bear flag compressions!)
+    # -------------------------------------------------------------
+    is_downtrend = (close < sma50) and (close < sma200)
+    is_stage2_trend = (close >= sma50) and (close >= sma200 or sma50 >= sma200)
+    
+    if is_downtrend:
+        comp_score = 0
+        setup_type = "Bearish Downtrend Coil"
+        is_coiled = False
+    else:
+        if is_stage2_trend:
+            comp_score = min(30, comp_score + 4)
+        is_coiled = (comp_score >= 14) and (not is_extended) and is_in_launchpad
     
     # -------------------------------------------------------------
-    # 5. Tight Structural Stop Loss Calculation
+    # 5. Tight Structural Stop Loss & Breakout Ignition Trigger
     # -------------------------------------------------------------
+    # Breakout Trigger: 0.2% above mother bar or NR7 high
+    trigger_price = round(max(high, prev_high) * 1.002, 2)
+    
     # In an Inside Bar / NR7 setup, stop is right below the mother bar or NR7 candle low!
     if is_inside_bar:
         tight_stop = round(min(low, prev_low) * 0.995, 2)
@@ -189,6 +205,7 @@ def detect_compression_pattern(df):
         
     detail = (
         f"{setup_type} | Dist to Pivot: {dist_to_pivot_pct:+.1f}% | "
+        f"Trigger: ₹{trigger_price:.1f} | Stop: ₹{tight_stop:.1f} | "
         f"NR7: {'Yes' if is_nr7 else 'No'} | IB: {'Yes' if is_inside_bar else 'No'} | "
         f"VDU: {'Yes' if is_vdu else 'No'} | Range: {today_range_pct*100:.1f}%"
     )
@@ -199,11 +216,13 @@ def detect_compression_pattern(df):
         "compression_score": comp_score,
         "setup_type": setup_type,
         "pivot_price": round(pivot_price, 2),
+        "trigger_price": trigger_price,
         "tight_stop_loss": round(tight_stop, 2),
         "dist_to_pivot_pct": round(dist_to_pivot_pct, 1),
         "is_nr7": is_nr7,
         "is_inside_bar": is_inside_bar,
         "is_vdu": is_vdu,
         "is_bb_squeeze": is_bb_squeeze,
+        "is_stage2_trend": is_stage2_trend,
         "detail": detail
     }
