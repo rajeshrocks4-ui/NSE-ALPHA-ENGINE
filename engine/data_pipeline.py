@@ -58,9 +58,13 @@ def fetch_latest_bhavcopy(dt=None):
     except Exception as e:
         print(f"  [Warn] jugaad-data download failed: {e}")
         
-    all_bhav = sorted(BHAVCOPY_DIR.glob("*bhav*.csv"), reverse=True)
+    all_bhav = sorted(
+        list(BHAVCOPY_DIR.glob("*[Bb]hav*.csv")),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True
+    )
     if all_bhav:
-        print(f"  [Data] Using local Bhavcopy: {all_bhav[0].name}")
+        print(f"  [Data] Using latest local Bhavcopy: {all_bhav[0].name}")
         return pd.read_csv(all_bhav[0])
     return pd.DataFrame()
 
