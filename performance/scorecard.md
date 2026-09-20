@@ -1,19 +1,19 @@
 # 🛡️ Real-Time Performance & P&L Scorecard
-> **Last Updated:** 20260920 | **Chandelier ATR Trailing Stops Active**
+> **Last Updated:** 20260918 | **Chandelier ATR Trailing Stops Active**
 
 ## Overall Portfolio Statistics
-- **Total Signal Journal Entries:** 87
-- **Currently Open Positions:** 53
-- **Closed Trade Win Rate:** 14.7% (5/34)
-- **Average Winner:** 🟢 +4.69%
-- **Average Loser:** 🔴 -5.26%
-- **Realized Risk/Reward (R/R):** 1 : 0.89
+- **Total Signal Journal Entries:** 112
+- **Currently Open Positions:** 65
+- **Closed Trade Win Rate:** 8.5% (4/47)
+- **Average Winner:** 🟢 +4.41%
+- **Average Loser:** 🔴 -4.62%
+- **Realized Risk/Reward (R/R):** 1 : 0.96
 
 ## Top 5 Active Open Runners
 | Symbol | Pattern | Entry | Current | Peak | Stop Loss | P&L % | Days |
 |--------|---------|-------|---------|------|-----------|-------|------|
-| **STLTECH** | Fib Golden Pocket | ₹621.4 | ₹818.8 | ₹912.0 | ₹775.2 | 🟢 **+31.77%** | 16d |
-| **CONFIPET** | Pocket Pivot | ₹82.6 | ₹91.9 | ₹92.6 | ₹82.6 | 🟢 **+11.39%** | 12d |
-| **AVALON** | Inside Bar Coiling | ₹2318.6 | ₹2537.7 | ₹2618.0 | ₹2318.6 | 🟢 **+9.45%** | 9d |
-| **ACMESOLAR** | Pocket Pivot | ₹401.6 | ₹435.2 | ₹440.7 | ₹401.6 | 🟢 **+8.38%** | 19d |
-| **ARTEMISMED** | Pre-Breakout Base | ₹320.7 | ₹338.5 | ₹362.0 | ₹326.6 | 🟢 **+5.55%** | 10d |
+| **STLTECH** | Fib Golden Pocket | ₹621.4 | ₹897.4 | ₹897.5 | ₹762.2 | 🟢 **+44.42%** | 12d |
+| **STLTECH** | NR7 Pre-Breakout Coiling | ₹748.9 | ₹897.4 | ₹897.5 | ₹762.2 | 🟢 **+19.83%** | 3d |
+| **WELCORP** | Pocket Pivot | ₹2311.9 | ₹2676.6 | ₹2761.8 | ₹2400.3 | 🟢 **+15.77%** | 11d |
+| **WELCORP** | Stage 2 Momentum Thrust | ₹2345.5 | ₹2676.6 | ₹2761.8 | ₹2400.3 | 🟢 **+14.12%** | 10d |
+| **DPEL** | Double Inside Bar Squeeze | ₹577.3 | ₹642.7 | ₹655.0 | ₹613.0 | 🟢 **+11.32%** | 11d |

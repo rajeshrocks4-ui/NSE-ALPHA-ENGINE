@@ -7,11 +7,11 @@
 
 | Symbol | Segment | Sector | Setup Classification | Close | Buy Trigger | Stop Loss | Deliv % | Clean RS | Alpha Score | Est. Shares | Capital Req | R/R |
 |--------|:-------:|--------|----------------------|-------|:-----------:|-----------|:-------:|:--------:|:-----------:|:-----------:|:-----------:|:---:|
-| **ANANDRATHI** | ⚡ `CASH` | Financial Services | `NR7-Inside Bar Launchpad` | ₹2215.9 | `₹2228.7` | ₹2178.9 | 52.6% | 20.6 | 🟢 **88.0** | 45 | ₹99,716 | 1:5+ |
-| **SMLMAH** | ⚡ `CASH` | Capital Goods | `NR7-Inside Bar Launchpad` | ₹6313.5 | `₹6461.9` | ₹6112.3 | 40.8% | 15.7 | 🟢 **77.0** | 15 | ₹94,702 | 1:5+ |
-| **JAGSNPHARM** | ⚡ `CASH` | General | `Inside Bar Coiling` | ₹242.1 | `₹250.1` | ₹235.8 | 53.3% | 10.0 | 🟢 **72.0** | 413 | ₹99,971 | 1:5+ |
-| **ASTRAMICRO** | ⚡ `CASH` | Communication Equipment | `Pocket Pivot` | ₹1757.3 | `₹1786.9` | ₹1683.0 | 26.8% | 17.9 | 🟢 **70.0** | 56 | ₹98,409 | 1:5+ |
-| **EMMVEE** | ⚡ `CASH` | Capital Goods | `Inside Bar Coiling` | ₹331.2 | `₹335.4` | ₹318.6 | 49.1% | 12.7 | 🟢 **70.0** | 301 | ₹99,706 | 1:5+ |
+| **GANDHAR** | ⚡ `CASH` | General | `NR7-Inside Bar Launchpad` | ₹264.0 | `₹272.3` | ₹260.0 | 41.6% | 31.0 | 🟢 **82.0** | 378 | ₹99,811 | 1:5+ |
+| **ETERNAL** | ⚡ `CASH` | Consumer Services | `NR7-Inside Bar Launchpad` | ₹321.6 | `₹328.4` | ₹316.8 | 70.9% | 16.6 | 🟢 **81.0** | 310 | ₹99,696 | 1:5+ |
+| **BAFNAPH** | ⚡ `CASH` | General | `NR7 Pre-Breakout Coiling` | ₹307.8 | `₹308.4` | ₹303.1 | 40.0% | 40.4 | 🟢 **80.0** | 324 | ₹99,711 | 1:5+ |
+| **IPCALAB** | 🔥 `F&O` | Healthcare | `VDU Launchpad Base` | ₹1967.2 | `₹2000.9` | ₹1886.0 | 62.5% | 12.6 | 🟢 **80.0** | 50 | ₹98,360 | 1:5+ |
+| **ANANTRAJ** | ⚡ `CASH` | Realty | `Inside Bar Coiling` | ₹625.8 | `₹646.1` | ₹612.1 | 56.7% | 8.1 | 🟢 **77.0** | 159 | ₹99,510 | 1:5+ |
 
 ---
 ## ⚡ INSTITUTIONAL F&O DERIVATIVES RADAR
@@ -19,11 +19,11 @@
 
 | Rank | Symbol | Sector | Setup Pattern | Close | Buy Trigger | Stop Loss | Deliv % | Clean RS | Alpha Score |
 |:----:|--------|--------|---------------|-------|:-----------:|-----------|:-------:|:--------:|:-----------:|
-| 10 | **METROPOLIS** | Healthcare | `Double Inside Bar Squeeze` | ₹588.7 | `₹594.6` | ₹578.1 | 84.1% | 9.1 | 🟢 **74.0** |
-| 12 | **INDIANB** | Financial Services | `Doji EMA Squeeze` | ₹879.7 | `₹908.5` | ₹864.5 | 55.3% | -1.7 | 🟢 **74.0** |
-| 20 | **TORNTPHARM** | Healthcare | `Inside Bar Coiling` | ₹4914.0 | `₹4950.9` | ₹4798.9 | 72.7% | 5.4 | 🟢 **72.0** |
-| 22 | **IDFCFIRSTB** | Financial Services | `Doji EMA Squeeze` | ₹86.5 | `₹87.3` | ₹84.1 | 57.5% | 13.0 | 🟢 **71.0** |
-| 23 | **APLAPOLLO** | Capital Goods | `Inside Bar Coiling` | ₹2215.0 | `₹2285.6` | ₹2139.7 | 60.6% | 5.2 | 🟢 **71.0** |
+| 4 | **IPCALAB** | Healthcare | `VDU Launchpad Base` | ₹1967.2 | `₹2000.9` | ₹1886.0 | 62.5% | 12.6 | 🟢 **80.0** |
+| 7 | **PNBHOUSING** | Financial Services | `Inside Bar Coiling` | ₹1167.1 | `₹1197.4` | ₹1135.4 | 55.9% | 16.9 | 🟢 **75.0** |
+| 8 | **DLF** | Realty | `Pocket Pivot` | ₹675.1 | `₹691.1` | ₹663.6 | 68.8% | 7.8 | 🟢 **73.0** |
+| 13 | **IDFCFIRSTB** | Financial Services | `Doji EMA Squeeze` | ₹86.5 | `₹87.3` | ₹84.1 | 61.8% | 13.0 | 🟢 **69.0** |
+| 14 | **GRASIM** | Construction Materials | `NR7-Inside Bar Launchpad` | ₹3306.8 | `₹3339.3` | ₹3251.8 | 62.6% | 8.6 | 🟢 **69.0** |
 
 ---
 ## 📊 Market Regime Dashboard: CAUTION (7/13)
@@ -31,10 +31,10 @@
 
 | Indicator | Value | Status |
 |-----------|-------|--------|
-| % Above 50 SMA | 50.2% | 🟡 Neutral |
-| % Above 150 SMA | 59.6% | 🟢 Bullish |
-| % Above 200 SMA | 55.8% | 🟢 Bullish |
-| 52W High / Low Ratio | 1.81 | 🟡 Neutral |
+| % Above 50 SMA | 48.0% | 🟡 Neutral |
+| % Above 150 SMA | 58.7% | 🟢 Bullish |
+| % Above 200 SMA | 55.0% | 🟢 Bullish |
+| 52W High / Low Ratio | 1.87 | 🟡 Neutral |
 
 ---
 ## 🔥 Full Conviction Watchlist (APEX & STRONG Tiers)
@@ -42,21 +42,21 @@
 
 | Rank | Symbol | Segment | Sector | Setup Pattern | Price | Stop Loss | Deliv % | Clean RS | Alpha Score |
 |:----:|--------|:-------:|--------|---------------|-------|-----------|:-------:|:--------:|:-----------:|
-| 1 | **GANDHAR** | `CASH` | Oil & Gas Refining & Marketing | `NR7-Inside Bar Launchpad` | ₹264.0 | ₹260.0 | 51.7% | 31.0 | **92.0** |
-| 2 | **ANANDRATHI** | `CASH` | Financial Services | `NR7-Inside Bar Launchpad` | ₹2215.9 | ₹2178.9 | 52.6% | 20.6 | **88.0** |
-| 3 | **VINSYS** | `CASH` | General | `Inside Bar Coiling` | ₹597.0 | ₹588.0 | 100.0% | 47.4 | **87.0** |
-| 4 | **ETERNAL** | `CASH` | Consumer Services | `NR7-Inside Bar Launchpad` | ₹321.6 | ₹316.8 | 54.2% | 16.6 | **79.0** |
-| 5 | **SHANKARA** | `CASH` | General | `VDU Launchpad Base` | ₹148.2 | ₹142.5 | 79.9% | 22.6 | **78.0** |
-| 6 | **EIMCOELECO** | `CASH` | General | `NR7-Inside Bar Launchpad` | ₹2254.4 | ₹2194.6 | 53.1% | 12.6 | **78.0** |
-| 7 | **SMLMAH** | `CASH` | Capital Goods | `NR7-Inside Bar Launchpad` | ₹6313.5 | ₹6112.3 | 40.8% | 15.7 | **77.0** |
-| 8 | **KODYTECH** | `CASH` | General | `VDU Launchpad Base` | ₹1569.9 | ₹1444.3 | 96.2% | 24.9 | **76.0** |
-| 9 | **KAPSTON** | `CASH` | General | `Inside Bar Coiling` | ₹584.0 | ₹565.5 | 55.8% | 24.0 | **74.0** |
-| 10 | **METROPOLIS** | `F&O` | Healthcare | `Double Inside Bar Squeeze` | ₹588.7 | ₹578.1 | 84.1% | 9.1 | **74.0** |
-| 11 | **TATACAP** | `CASH` | Financial Services | `NR7-Inside Bar Launchpad` | ₹368.0 | ₹362.5 | 62.6% | 7.9 | **74.0** |
-| 12 | **INDIANB** | `F&O` | Financial Services | `Doji EMA Squeeze` | ₹879.7 | ₹864.5 | 55.3% | -1.7 | **74.0** |
-| 13 | **HOACFOODS** | `CASH` | General | `Inside Bar Coiling` | ₹990.0 | ₹955.1 | 100.0% | 37.3 | **73.0** |
-| 14 | **AMANTA** | `CASH` | Drug Manufacturers - Specialty & Generic | `NR7 Pre-Breakout Coiling` | ₹197.9 | ₹194.9 | 40.0% | 23.6 | **73.0** |
-| 15 | **SEAMECLTD** | `CASH` | Marine Shipping | `NR7 Pre-Breakout Coiling` | ₹1793.6 | ₹1758.1 | 59.5% | 7.8 | **73.0** |
+| 1 | **GANDHAR** | `CASH` | General | `NR7-Inside Bar Launchpad` | ₹264.0 | ₹260.0 | 41.6% | 31.0 | **82.0** |
+| 2 | **ETERNAL** | `CASH` | Consumer Services | `NR7-Inside Bar Launchpad` | ₹321.6 | ₹316.8 | 70.9% | 16.6 | **81.0** |
+| 3 | **BAFNAPH** | `CASH` | General | `NR7 Pre-Breakout Coiling` | ₹307.8 | ₹303.1 | 40.0% | 40.4 | **80.0** |
+| 4 | **IPCALAB** | `F&O` | Healthcare | `VDU Launchpad Base` | ₹1967.2 | ₹1886.0 | 62.5% | 12.6 | **80.0** |
+| 5 | **ANANTRAJ** | `CASH` | Realty | `Inside Bar Coiling` | ₹625.8 | ₹612.1 | 56.7% | 8.1 | **77.0** |
+| 6 | **NAZARA** | `CASH` | Media Entertainment & Publication | `NR7-Inside Bar Launchpad` | ₹368.4 | ₹361.4 | 44.6% | 16.0 | **76.0** |
+| 7 | **PNBHOUSING** | `F&O` | Financial Services | `Inside Bar Coiling` | ₹1167.1 | ₹1135.4 | 55.9% | 16.9 | **75.0** |
+| 8 | **DLF** | `F&O` | Realty | `Pocket Pivot` | ₹675.1 | ₹663.6 | 68.8% | 7.8 | **73.0** |
+| 9 | **ANANDRATHI** | `CASH` | Financial Services | `Doji EMA Squeeze` | ₹2229.5 | ₹2145.8 | 55.4% | 21.6 | **72.0** |
+| 10 | **MADHUSUDAN** | `CASH` | General | `VDU Launchpad Base` | ₹238.6 | ₹224.2 | 86.7% | 18.4 | **72.0** |
+| 11 | **CRAFTSMAN** | `CASH` | Automobile and Auto Components | `NR7-Inside Bar Launchpad` | ₹11406.0 | ₹11041.5 | 43.8% | 14.5 | **72.0** |
+| 12 | **JSWDULUX** | `CASH` | Consumer Durables | `Inside Bar Coiling` | ₹3174.4 | ₹3126.8 | 74.6% | 5.3 | **70.0** |
+| 13 | **IDFCFIRSTB** | `F&O` | Financial Services | `Doji EMA Squeeze` | ₹86.5 | ₹84.1 | 61.8% | 13.0 | **69.0** |
+| 14 | **GRASIM** | `F&O` | Construction Materials | `NR7-Inside Bar Launchpad` | ₹3306.8 | ₹3251.8 | 62.6% | 8.6 | **69.0** |
+| 15 | **APOLLOHOSP** | `F&O` | Healthcare | `Pre-Breakout Coiling` | ₹8837.5 | ₹8649.5 | 45.6% | 6.4 | **69.0** |
 
 ---
 ## 📖 Pre-Breakout Execution Rules
@@ -65,4 +65,4 @@
 3. **Chandelier ATR Trailing Stop:** Trail stops at `Peak Price - (3 * ATR14)` as stock advances into Stage 2.
 4. **Breakeven Rule:** When position reaches **+8.0%**, automatically move stop loss to entry price.
 
-*Report generated: 2026-09-09 08:26 IST | Automated via GitHub Actions*
+*Report generated: 2026-09-09 18:49 IST | Automated via GitHub Actions*
