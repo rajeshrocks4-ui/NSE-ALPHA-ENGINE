@@ -1,19 +1,19 @@
 # 🛡️ Real-Time Performance & P&L Scorecard
-> **Last Updated:** 20261015 | **Chandelier ATR Trailing Stops Active**
+> **Last Updated:** 20261016 | **Chandelier ATR Trailing Stops Active**
 
 ## Overall Portfolio Statistics
-- **Total Signal Journal Entries:** 207
-- **Currently Open Positions:** 73
-- **Closed Trade Win Rate:** 9.0% (12/134)
-- **Average Winner:** 🟢 +5.33%
-- **Average Loser:** 🔴 -4.59%
-- **Realized Risk/Reward (R/R):** 1 : 1.16
+- **Total Signal Journal Entries:** 212
+- **Currently Open Positions:** 69
+- **Closed Trade Win Rate:** 9.8% (14/143)
+- **Average Winner:** 🟢 +8.76%
+- **Average Loser:** 🔴 -4.63%
+- **Realized Risk/Reward (R/R):** 1 : 1.89
 
 ## Top 5 Active Open Runners
 | Symbol | Pattern | Entry | Current | Peak | Stop Loss | P&L % | Days |
 |--------|---------|-------|---------|------|-----------|-------|------|
 | **MBECL** | Stage 2 (52W High) Breakout | ₹234.8 | ₹474.8 | ₹474.8 | ₹430.5 | 🟢 **+102.20%** | 8d |
-| **STLTECH** | Fib Golden Pocket | ₹621.4 | ₹1014.2 | ₹1037.0 | ₹889.1 | 🟢 **+63.20%** | 15d |
-| **STLTECH** | NR7 Pre-Breakout Coiling | ₹748.9 | ₹1014.2 | ₹1037.0 | ₹889.1 | 🟢 **+35.42%** | 6d |
-| **OPTIEMUS** | Pocket Pivot | ₹605.0 | ₹794.2 | ₹924.9 | ₹746.8 | 🟢 **+31.29%** | 22d |
-| **E2E** | Base Consolidation | ₹608.5 | ₹748.3 | ₹765.0 | ₹645.1 | 🟢 **+22.98%** | 36d |
+| **OPTIEMUS** | Pocket Pivot | ₹605.0 | ₹760.0 | ₹924.9 | ₹750.0 | 🟢 **+25.63%** | 23d |
+| **PANACHE** | Inside Bar Coiling | ₹514.9 | ₹643.6 | ₹655.5 | ₹584.8 | 🟢 **+25.00%** | 15d |
+| **PANACHE** | TTM Bollinger Squeeze | ₹516.2 | ₹643.6 | ₹655.5 | ₹584.8 | 🟢 **+24.69%** | 10d |
+| **PANACHE** | NR7 Pre-Breakout Coiling | ₹516.2 | ₹643.6 | ₹655.5 | ₹584.8 | 🟢 **+24.69%** | 12d |
