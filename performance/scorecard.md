@@ -1,10 +1,10 @@
 # 🛡️ Real-Time Performance & P&L Scorecard
-> **Last Updated:** 20261103 | **Chandelier ATR Trailing Stops Active**
+> **Last Updated:** 20261104 | **Chandelier ATR Trailing Stops Active**
 
 ## Overall Portfolio Statistics
-- **Total Signal Journal Entries:** 272
-- **Currently Open Positions:** 64
-- **Closed Trade Win Rate:** 10.1% (21/208)
+- **Total Signal Journal Entries:** 277
+- **Currently Open Positions:** 67
+- **Closed Trade Win Rate:** 10.0% (21/210)
 - **Average Winner:** 🟢 +7.75%
 - **Average Loser:** 🔴 -4.78%
 - **Realized Risk/Reward (R/R):** 1 : 1.62
@@ -13,7 +13,7 @@
 | Symbol | Pattern | Entry | Current | Peak | Stop Loss | P&L % | Days |
 |--------|---------|-------|---------|------|-----------|-------|------|
 | **MBECL** | Stage 2 (52W High) Breakout | ₹234.8 | ₹474.8 | ₹474.8 | ₹430.5 | 🟢 **+102.20%** | 8d |
-| **PANACHE** | Inside Bar Coiling | ₹514.9 | ₹633.9 | ₹682.9 | ₹629.9 | 🟢 **+23.11%** | 25d |
-| **PANACHE** | NR7 Pre-Breakout Coiling | ₹516.2 | ₹633.9 | ₹682.9 | ₹629.9 | 🟢 **+22.81%** | 22d |
-| **PANACHE** | TTM Bollinger Squeeze | ₹516.2 | ₹633.9 | ₹682.9 | ₹629.9 | 🟢 **+22.81%** | 21d |
-| **PANACHE** | TTM Bollinger Squeeze | ₹516.2 | ₹633.9 | ₹682.9 | ₹629.9 | 🟢 **+22.81%** | 20d |
+| **PANACHE** | Inside Bar Coiling | ₹514.9 | ₹646.5 | ₹682.9 | ₹635.8 | 🟢 **+25.57%** | 26d |
+| **PANACHE** | TTM Bollinger Squeeze | ₹516.2 | ₹646.5 | ₹682.9 | ₹635.8 | 🟢 **+25.26%** | 22d |
+| **PANACHE** | TTM Bollinger Squeeze | ₹516.2 | ₹646.5 | ₹682.9 | ₹635.8 | 🟢 **+25.26%** | 21d |
+| **PANACHE** | NR7 Pre-Breakout Coiling | ₹516.2 | ₹646.5 | ₹682.9 | ₹635.8 | 🟢 **+25.26%** | 23d |
