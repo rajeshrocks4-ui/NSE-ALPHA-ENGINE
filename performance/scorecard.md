@@ -1,10 +1,10 @@
 # 🛡️ Real-Time Performance & P&L Scorecard
-> **Last Updated:** 20261105 | **Chandelier ATR Trailing Stops Active**
+> **Last Updated:** 20261106 | **Chandelier ATR Trailing Stops Active**
 
 ## Overall Portfolio Statistics
-- **Total Signal Journal Entries:** 282
-- **Currently Open Positions:** 72
-- **Closed Trade Win Rate:** 10.0% (21/210)
+- **Total Signal Journal Entries:** 287
+- **Currently Open Positions:** 76
+- **Closed Trade Win Rate:** 10.0% (21/211)
 - **Average Winner:** 🟢 +7.75%
 - **Average Loser:** 🔴 -4.78%
 - **Realized Risk/Reward (R/R):** 1 : 1.62
